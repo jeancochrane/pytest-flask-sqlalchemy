@@ -39,7 +39,7 @@ setup(
     # Make the package available to pytest
     entry_points={
         'pytest11': [
-            'pytest-flask-sqlalchemy-transactions = transactions.fixtures',
+            'pytest-flask-sqlalchemy-transactions = transactions.plugin',
         ]
     },
 )

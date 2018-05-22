@@ -1,19 +1,26 @@
+import os
+import contextlib
+
 import pytest
+import sqlalchemy as sa
+
+from .exceptions import ConfigError
+
 
 @pytest.fixture(scope='function')
-def _transaction(request, setup, mocker):
+def _transaction(request, _db, mocker):
     '''
     Create a transactional context for tests to run in.
     '''
     # Start a transaction
-    connection = db.engine.connect()
+    connection = _db.engine.connect()
     transaction = connection.begin()
 
     # Bind a session to the transaction. The empty `binds` dict is necessary
     # when specifying a `bind` option, or else Flask-SQLAlchemy won't scope
     # the connection properly
     options = dict(bind=connection, binds={})
-    session = db.create_scoped_session(options=options)
+    session = _db.create_scoped_session(options=options)
 
     # Make sure the session, connection, and transaction can't be closed by accident in
     # the codebase
@@ -59,7 +66,7 @@ def _transaction(request, setup, mocker):
 
 
 @pytest.fixture(scope='function')
-def _engine(request, _transaction, mocker):
+def _engine(pytestconfig, request, _transaction, mocker):
     '''
     Mock out direct access to the semi-global Engine object.
     '''
@@ -67,12 +74,12 @@ def _engine(request, _transaction, mocker):
 
     # Make sure that any attempts to call `connect()` simply returns a
     # reference to the open connection
-    engine = mocker.MagicMock(spec=db.engine)
+    engine = mocker.MagicMock(spec=sa.engine.Engine)
 
     engine.connect.return_value = connection
     engine.contextual_connect.return_value = connection
 
-    @contextmanager
+    @contextlib.contextmanager
     def begin():
         """
         Open a new nested transaction on the `connection` object.
@@ -106,7 +113,9 @@ def _engine(request, _transaction, mocker):
 
     engine.raw_connection = raw_connection
 
-    mocker.patch('api.database.engine', new=engine)
+    for mocked_engine in pytestconfig._mocked_engines:
+        mocker.patch(mocked_engine, new=engine)
+
     session.bind = engine
 
     @request.addfinalizer
@@ -121,7 +130,7 @@ def _engine(request, _transaction, mocker):
 
 
 @pytest.fixture(scope='function')
-def _session(_transaction, mocker):
+def _session(pytestconfig, _transaction, mocker):
     '''
     Mock out Session objects (a common way of interacting with the database using
     the SQLAlchemy ORM) using a transactional context.
@@ -130,10 +139,12 @@ def _session(_transaction, mocker):
 
     # Whenever the code tries to access a Flask session, use the Session object
     # instead
-    mocker.patch('api.database.db.session', new=session)
+    for mocked_session in pytestconfig._mocked_sessions:
+        mocker.patch(mocked_session, new=session)
 
-    # Create a dummy class to mock out the WorkerSession
-    class FakeWorkerSession(Session):
+    # Create a dummy class to mock out the sessionmakers
+    # (We need to do this as a class because we can't mock __call__ methods)
+    class FakeSessionMaker(sa.orm.Session):
         def __call__(self):
             return session
 
@@ -142,7 +153,8 @@ def _session(_transaction, mocker):
             pass
 
     # Mock out the WorkerSession
-    mocker.patch('api.database.WorkerSession', new_callable=FakeWorkerSession)
+    for mocked_sessionmaker in pytestconfig._mocked_sessionmakers:
+        mocker.patch(mocked_sessionmaker, new_callable=FakeSessionMaker)
 
     return session
 
@@ -174,7 +186,7 @@ def db_engine(_engine, _session, _transaction):
 
 
 @pytest.fixture(scope='module')
-def module_engine(request):
+def module_engine(pytestconfig, request):
     '''
     A module-scoped Engine object for use in setting up fixture state.
 
@@ -182,7 +194,12 @@ def module_engine(request):
     be avoided wherever possible in tests, since it does not enforce transactional
     context.
     '''
-    engine = init_engine(DB_CONN)
+    # Make sure that the user has passed in a connection string for the database
+    if pytestconfig._dbconn == '':
+        raise ConfigError("The configuration option 'db-connection-string' is required " +
+                          'to use the `module_engine` fixture. Check your pytest config ' +
+                          'file and make sure that this option is specified correctly.')
+    engine = sa.create_engine(pytestconfig._dbconn)
 
     @request.addfinalizer
     def dispose():
