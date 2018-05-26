@@ -9,7 +9,7 @@ def test_loaded_files(testfile, conftest, testdir):
     testdir.makepyfile("""
         import pytest
 
-        def test_pytester(table, db_session):
+        def test_pytester(user, db_session):
             '''
             Make sure pytester works.
             '''

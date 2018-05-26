@@ -59,11 +59,12 @@ def _db(app):
 
 
 @pytest.fixture(scope='module')
-def table(request, _db):
+def user(request, _db):
     '''
     Create a table to use for updating in the process of testing direct database access.
     '''
     class User(_db.Model):
+        __tablename__ = 'user'
         id = _db.Column(_db.Integer, primary_key=True)
         name = _db.Column(_db.String(80))
 
