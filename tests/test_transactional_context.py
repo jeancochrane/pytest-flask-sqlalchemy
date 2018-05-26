@@ -1,13 +1,15 @@
-def test_plugin(testfile, conftest, testdir):
+def test_loaded_files(testfile, conftest, testdir):
     '''
     Run all tests for this file using a temporary conftest file.
     '''
     # Load a temp conftest from file
-    # testdir.makeconftest(conftest)
+    testdir.makeconftest(conftest)
 
     # Load tests from file
     testdir.makepyfile("""
-        def test_pytester():
+        import pytest
+
+        def test_pytester(table, db_session):
             '''
             Make sure pytester works.
             '''

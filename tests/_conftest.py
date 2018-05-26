@@ -1,11 +1,25 @@
-# _conftest.py -- provides the actual configuration file for the tests
+# _conftest.py -- provides the actual configuration file for the tests that gets
+# loaded in `test_plugin.py`
+import os
+
 import pytest
+import sqlalchemy as sa
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from pytest_postgresql.factories import (init_postgresql_database,
                                          drop_postgresql_database)
 
-from ._test_config import DB_OPTS, DB_CONN
+# Retrieve a database connection string from the shell environment
+try:
+    DB_CONN = os.environ['TEST_DATABASE_URL']
+except KeyError:
+    raise KeyError('TEST_DATABASE_URL not found. You must export a database ' +
+                   'connection string to the environmental variable ' +
+                   'TEST_DATABASE_URL in order to run tests.')
+else:
+    DB_OPTS = sa.engine.url.make_url(DB_CONN).translate_connect_args()
+
+pytest_plugins = ['pytest-flask-sqlalchemy-transactions']
 
 
 @pytest.fixture(scope='session')
@@ -42,3 +56,22 @@ def _db(app):
     '''
     db = SQLAlchemy(app)
     return db
+
+
+@pytest.fixture(scope='module')
+def table(request, _db):
+    '''
+    Create a table to use for updating in the process of testing direct database access.
+    '''
+    class User(_db.Model):
+        id = _db.Column(_db.Integer, primary_key=True)
+        name = _db.Column(_db.String(80))
+
+    # Create tables
+    _db.create_all()
+
+    @request.addfinalizer
+    def drop_tables():
+        _db.drop_all()
+
+    return User
