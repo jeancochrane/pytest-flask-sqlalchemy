@@ -1,5 +1,10 @@
 import pytest
 
+# This import prevents SQLAlchemy from throwing an AttributeError
+# claiming that <class 'object'> is already a registered type -- it is suspicious
+# code and should eventually be either confirmed to fix a bug, or removed
+from flask_sqlalchemy import SQLAlchemy
+
 pytest_plugins = ['pytester']
 
 
@@ -24,15 +29,3 @@ def db_testdir(conftest, testdir):
     testdir.makeconftest(conftest)
 
     return testdir
-
-
-@pytest.fixture(scope='module')
-def orm_testfile():
-    '''
-    Load a file with tests in it to a string, in order to run them in a temporary
-    directory.
-    '''
-    with open('tests/_test_orm_updates.py', 'r') as tf:
-        testfile = tf.read()
-
-    return testfile

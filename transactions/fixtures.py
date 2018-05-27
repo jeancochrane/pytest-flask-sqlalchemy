@@ -81,9 +81,9 @@ def _engine(pytestconfig, request, _transaction, mocker):
 
     @contextlib.contextmanager
     def begin():
-        """
+        '''
         Open a new nested transaction on the `connection` object.
-        """
+        '''
         with connection.begin_nested():
             yield connection
 
