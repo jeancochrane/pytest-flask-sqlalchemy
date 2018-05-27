@@ -45,6 +45,9 @@ def app(database):
     Create a Flask app context for the tests.
     '''
     app = Flask(__name__)
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = DB_CONN
+
     return app
 
 
@@ -54,17 +57,17 @@ def _db(app):
     Provide the transactional fixtures with access to the database via a Flask-SQLAlchemy
     database connection.
     '''
-    db = SQLAlchemy(app)
+    db = SQLAlchemy(app=app)
     return db
 
 
 @pytest.fixture(scope='module')
-def user(request, _db):
+def person(request, _db):
     '''
     Create a table to use for updating in the process of testing direct database access.
     '''
-    class User(_db.Model):
-        __tablename__ = 'user'
+    class Person(_db.Model):
+        __tablename__ = 'person'
         id = _db.Column(_db.Integer, primary_key=True)
         name = _db.Column(_db.String(80))
 
@@ -75,4 +78,4 @@ def user(request, _db):
     def drop_tables():
         _db.drop_all()
 
-    return User
+    return Person

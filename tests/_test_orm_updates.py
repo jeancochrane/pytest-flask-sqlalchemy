@@ -2,7 +2,7 @@ import pytest
 import sqlalchemy as sa
 
 
-def test_use_db_session_to_alter_database(user, db_session):
+def test_use_db_session_to_alter_database(person, db_engine, db_session):
     '''
     Test that creating objects and emitting SQL in the ORM won't bleed into
     other tests.
@@ -13,65 +13,65 @@ def test_use_db_session_to_alter_database(user, db_session):
         'name': 'tester'
     }
 
-    new_inst = table(**opts)
+    new_inst = person(**opts)
 
     db_session.add(new_inst)
     db_session.commit()
 
     # Create a new object instance by emitting raw SQL from the session object
     db_session.execute('''
-        insert into user (id, name)
+        insert into person (id, name)
         values (2, 'second tester')
     ''')
 
     # Make sure that the session object has registered changes
-    name_list = db_session.execute('''select name from user''').fetchall()
+    name_list = db_session.execute('''select name from person''').fetchall()
     names = [name[0] for name in name_list]
 
     assert 'tester' in names
     assert 'second tester' in names
 
 
-def test_db_session_changes_dont_persist(user, db_session):
+def test_db_session_changes_dont_persist(person, db_engine, db_session):
     '''
     Test that the changes made in `test_use_db_session_to_alter_database` have not
     persisted.
     '''
-    assert not db_engine.execute('''select * from user''').fetchone()[0]
+    assert not db_engine.execute('''select * from person''').fetchone()
+    assert not db_session.query(person).first()
 
-
-def test_use_db_engine_to_alter_database(user, db_engine, db_session):
+def test_use_db_engine_to_alter_database(person, db_engine, db_session):
     '''
     Use the `db_engine` fixture to alter the database directly.
     '''
     db_engine.execute('''
-        insert into user (id, name)
+        insert into person (id, name)
         values (1, 'tester')
     ''')
 
     # Use the contextmanager to retrieve a connection
     with db_engine.begin() as conn:
         conn.execute('''
-            insert into user (id, name)
+            insert into person (id, name)
             values (2, 'second tester')
         ''')
 
-    user = db_session.query(user).get(1)
-    second_user = db_session.query(user).get(2)
+    first_person = db_session.query(person).get(1)
+    second_person = db_session.query(person).get(2)
 
-    assert user.name == 'tester'
-    assert second_user.name == 'second tester'
+    assert first_person.name == 'tester'
+    assert second_person.name == 'second tester'
 
 
-def test_db_engine_changes_dont_persist(user, db_engine, db_session):
+def test_db_engine_changes_dont_persist(person, db_engine, db_session):
     '''
     Make sure that changes made in `test_use_db_engine_in_test_to_alter_database`
     don't persist across tests.
     '''
-    assert not db_engine.execute('''select * from user''').fetchone()[0]
-    assert not db_session.query(user).first()
+    assert not db_engine.execute('''select * from person''').fetchone()
+    assert not db_session.query(person).first()
 
-
+"""
 def test_raise_programmingerror_rolls_back_transaction(user, db_engine, db_session):
     '''
     Make sure that when a ProgrammingError gets raised and handled, the
@@ -265,3 +265,4 @@ def test_raw_connection_changes_dont_persist(dataset_id, db_engine, db_session):
     '''
     assert not db_engine.execute('''select * from user''').fetchone()[0]
     assert not db_session.query(user).first()
+"""
