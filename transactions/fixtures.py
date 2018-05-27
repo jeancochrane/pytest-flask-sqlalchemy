@@ -199,7 +199,15 @@ def module_engine(pytestconfig, request):
         raise ConfigError("The configuration option 'db-connection-string' is required " +
                           'to use the `module_engine` fixture. Check your pytest config ' +
                           'file and make sure that this option is specified correctly.')
-    engine = sa.create_engine(pytestconfig._dbconn)
+
+    try:
+        engine = sa.create_engine(pytestconfig._dbconn)
+    except sa.exc.ArgumentError:
+        raise ConfigError("SQLAlchemy could not parse a rfc1738 URL from the string " +
+                          "'%s', defined in the 'db-connection-string' variable " % pytestconfig._dbconn +
+                          "in your .ini file. For help defining a valid connection string, " +
+                          "see the SQLAlchemy docs for the 'create_engine' method: " +
+                          "http://docs.sqlalchemy.org/en/latest/core/engines.html#sqlalchemy.create_engine")
 
     @request.addfinalizer
     def dispose():

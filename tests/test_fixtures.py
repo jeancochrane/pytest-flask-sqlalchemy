@@ -1,3 +1,6 @@
+import os
+
+
 def test_use_db_session_to_alter_database(db_testdir):
     '''
     Test that creating objects and emitting SQL in the ORM won't bleed into
@@ -279,14 +282,50 @@ def test_use_raw_connection_to_alter_database(db_testdir):
             conn.close()
 
             # Make sure earlier changes made by the original connection persist after rollback
-            person = db_session.query(person).get(1)
-            assert person.name == 'tester'
+            orig_person = db_session.query(person).get(1)
+            assert orig_person.name == 'tester'
 
 
         def test_raw_connection_changes_dont_persist(person, db_engine, db_session):
 
             assert not db_engine.execute('''select * from person''').fetchone()
             assert not db_session.query(person).first()
+    """)
+
+    result = db_testdir.runpytest()
+    result.assert_outcomes(passed=2)
+
+
+def test_module_engine(db_testdir):
+    '''
+    Make sure that the `module_engine` fixture can produce state changes that
+    persist across tests.
+    '''
+    db_conn = os.environ['TEST_DATABASE_URL']
+
+    db_testdir.makeini("""
+        [pytest]
+        db-connection-string={}
+    """.format(db_conn))
+
+    db_testdir.makepyfile("""
+        def test_module_engine(person, module_engine):
+
+            module_engine.execute('''
+                insert into person (id, name)
+                values (1, 'tester')
+            ''')
+
+            new_person = module_engine.execute('''select name from person where id = 1''').fetchone()[0]
+            assert new_person == 'tester'
+
+        def test_module_engine_changes_persist(person, module_engine):
+
+            new_person = module_engine.execute('''select name from person where id = 1''').fetchone()[0]
+            assert new_person == 'tester'
+
+            # Perform cleanup
+            module_engine.execute('''truncate person''')
     """)
 
     result = db_testdir.runpytest()
