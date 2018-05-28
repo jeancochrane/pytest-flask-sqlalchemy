@@ -47,15 +47,14 @@ def test_mocked_engines(db_testdir):
     '''
     db_testdir.makeini("""
         [pytest]
-        mocked_engines=collections.namedtuple collections.deque
+        mocked-engines=collections.namedtuple collections.deque
     """)
 
     db_testdir.makepyfile("""
-
         def test_mocked_engines(db_engine):
             from collections import namedtuple, deque
-            assert type(namedtuple) == 'Mock'
-            assert type(deque) == 'Mock'
+            assert str(namedtuple).startswith("<MagicMock spec='Engine'")
+            assert str(deque).startswith("<MagicMock spec='Engine'")
     """)
 
     result = db_testdir.runpytest()
@@ -69,15 +68,15 @@ def test_mocked_sessions(db_testdir):
     '''
     db_testdir.makeini("""
         [pytest]
-        mocked_sessions=collections.namedtuple collections.deque
+        mocked-sessions=collections.namedtuple collections.Counter
     """)
 
     db_testdir.makepyfile("""
 
         def test_mocked_sessions(db_session):
-            from collections import namedtuple, deque
-            assert type(namedtuple) == 'Mock'
-            assert type(deque) == 'Mock'
+            from collections import namedtuple, Counter
+            assert str(namedtuple).startswith("<sqlalchemy.orm.scoping.scoped_session object")
+            assert str(Counter).startswith("<sqlalchemy.orm.scoping.scoped_session object")
     """)
 
     result = db_testdir.runpytest()
@@ -91,15 +90,15 @@ def test_mocked_sessionmakers(db_testdir):
     '''
     db_testdir.makeini("""
         [pytest]
-        mocked_sessionmakers=collections.namedtuple collections.deque
+        mocked-sessionmakers=collections.namedtuple collections.Counter
     """)
 
     db_testdir.makepyfile("""
 
         def test_mocked_sessionmakers(db_session):
-            from collections import namedtuple, deque
-            assert type(namedtuple) == 'Mock'
-            assert type(deque) == 'Mock'
+            from collections import namedtuple, Counter
+            assert str(namedtuple).startswith("<transactions.fixtures._session.<locals>.FakeSessionMaker")
+            assert str(Counter).startswith("<transactions.fixtures._session.<locals>.FakeSessionMaker")
     """)
 
     result = db_testdir.runpytest()
