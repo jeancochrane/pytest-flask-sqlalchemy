@@ -139,6 +139,78 @@ pip install -r requirements/main.txt
 
 ## Configuration
 
+### Conftest setup
+
+This plugin assumes that a fixture called `_db` has been
+defined in the root conftest file for your tests. As a fixture, `_db` should
+expose access to a valid Session object that can interact with your database,
+for example via the [`SQLAlchemy` initialization object](http://flask-sqlalchemy.pocoo.org/2.3/api/#flask_sqlalchemy.SQLAlchemy)
+that configures Flask-SQLAlchemy.
+
+The fixtures in this plugin depend on this `_db` fixture to access your
+database and create nested transactions to run tests in.
+
+An example setup that will produce a valid `_db` fixture could look like this
+(this example comes from the [test setup](./tests/_conftest.py#L25-L61) for this repo):
+
+```
+@pytest.fixture(scope='session')
+def database(request):
+    '''
+    Create a Postgres database for the tests, and drop it when the tests are done.
+    '''
+    pg_host = DB_OPTS.get("host")
+    pg_port = DB_OPTS.get("port")
+    pg_user = DB_OPTS.get("username")
+    pg_db = DB_OPTS["database"]
+
+    init_postgresql_database(pg_user, pg_host, pg_port, pg_db)
+
+    @request.addfinalizer
+    def drop_database():
+        drop_postgresql_database(pg_user, pg_host, pg_port, pg_db, 9.6)
+
+
+@pytest.fixture(scope='session')
+def app(database):
+    '''
+    Create a Flask app context for the tests.
+    '''
+    app = Flask(__name__)
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = DB_CONN
+
+    return app
+
+
+@pytest.fixture(scope='session')
+def _db(app):
+    '''
+    Provide the transactional fixtures with access to the database via a Flask-SQLAlchemy
+    database connection.
+    '''
+    db = SQLAlchemy(app=app)
+
+    return db
+```
+
+Alternatively, if you already have a fixture that sets up database access for
+your tests, you can define `_db` to return that fixture directly:
+
+```python
+@pytest.fixture(scope='session')
+def database():
+    # Set up all your database stuff here
+    # ...
+    return db
+
+@pytest.fixture(scope='session')
+def _db(database):
+    return database
+```
+
+### Test configuration (.ini or .cfg file)
+
 This plugin requires that you set up a test configuration file with a few
 specific properties under the `[pytest]` section. For background on pytest
 configuration, see the [pytest docs](https://docs.pytest.org/en/latest/customize.html#adding-default-options).
