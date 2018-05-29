@@ -72,7 +72,6 @@ def test_mocked_sessions(db_testdir):
     """)
 
     db_testdir.makepyfile("""
-
         def test_mocked_sessions(db_session):
             from collections import namedtuple, Counter
             assert str(namedtuple).startswith("<sqlalchemy.orm.scoping.scoped_session object")
@@ -94,7 +93,6 @@ def test_mocked_sessionmakers(db_testdir):
     """)
 
     db_testdir.makepyfile("""
-
         def test_mocked_sessionmakers(db_session):
             from collections import namedtuple, Counter
             assert str(namedtuple).startswith("<transactions.fixtures._session.<locals>.FakeSessionMaker")

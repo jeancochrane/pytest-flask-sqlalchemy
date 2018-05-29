@@ -1,5 +1,5 @@
 from .fixtures import _transaction, _engine, _session, db_session, db_engine, module_engine
-
+from .hooks import *
 
 def pytest_addoption(parser):
     '''
@@ -35,3 +35,17 @@ def pytest_configure(config):
     config._mocked_engines = config.getini('mocked-engines')
     config._mocked_sessions = config.getini('mocked-sessions')
     config._mocked_sessionmakers = config.getini('mocked-sessionmakers')
+
+
+def pytest_load_initial_conftests(early_config, parser, args):
+    '''
+    Register marks.
+    '''
+    early_config.addinivalue_line(
+        'markers',
+        'transactional: Mark the test to be run inside a nested transaction, with '
+        'any database changes rolled back at the end of the test. Note that '
+        "running tests in transactions requires you to configure the 'mocked-sessions', "
+        "'mocked-engines', and 'mocked-sessionmakers' properties in your test "
+        'config file so that any objects you are using to update the database are '
+        'appropriately replaced with their transactional equivalent.')
