@@ -1,34 +1,48 @@
 # pytest-flask-sqlalchemy-transactions
 
+[![Build Status](https://travis-ci.org/jeancochrane/pytest-flask-sqlalchemy-transactions.svg?branch=master)](https://travis-ci.org/jeancochrane/pytest-flask-sqlalchemy-transactions) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/Django.svg)
+
 A [pytest](https://docs.pytest.org/en/latest/) plugin providing fixtures for running tests in
 transactions using Flask and SQLAlchemy.
+
+## Contents
+
+- [**Motivation**](#motivation)
+- [**Quick examples**](#quick-examples)
+- [**Usage**](#usage)
+    - [Installation](#installation)
+        - [From PyPi](#from-pypi)
+        - [Development version](#development-version)
+    - [Configuration](#configuration)
+        - [Conftest setup](#conftest-setup)
+        - [Test configuration (.ini or .cfg file)](#test-configuration-ini-or-cfg-file)
+            - [`db-connection-string`](#db-connection-string)
+            - [`mocked-engines`](#mocked-engines)
+            - [`mocked-sessions`](#mocked-sessions)
+            - [`mocked-sessionmakers`](#mocked-sessionmakers)
+    - [Fixtures](#fixtures)
+        - [`db_session`](#db_session)
+        - [`db_engine`](#db_engine)
+        - [`module_engine`](#module_engine)
+    - [Using the `transactional` mark](#using-the-transactional-mark)
+- [**Development**](#development)
+    - [Running the tests](#running-the-tests)
+    - [Acknowledgements](#acknowledgements)
+    - [Copyright](#copyright)
 
 ## Motivation
 
 Inspired by [Django's built-in support for transactional
 tests](https://jeancochrane.com/blog/django-test-transactions), this plugin 
 seeks to provide comprehensive, easy-to-use fixtures for wrapping tests in
-database transactions using Pytest, Flask, and SQLAlchemy.
-
-In order to test database operations in the context of stateful web applications,
-developers must pay an inordinate amount of attention to the database changes incurred by their
-tests, since unanticipated changes can leak state between tests and inhibit
-test isolation. While some test engineers advocate avoiding database
-interactions entirely (see Harry Percival's ["Fast Tests, Slow Tests, and Hot
-Lava"](https://www.obeythetestinggoat.com/book/chapter_hot_lava.html) for more
-on this perspective), this approach is infeasible in data-intensive web applications,
-where much of the business logic involves state changes to a database. For
-these kinds of applications, a solution is needed that will allow the developer
-to trigger and verify database updates while still ensuring test isolation.
-
-The goal of this plugin is to make testing stateful Flask applications easier
-by providing fixtures that permit the developer to **make arbitrary
-database updates with the confidence that any changes made during a test will
-roll back** once the test exits.
+database transactions using Pytest, Flask, and SQLAlchemy. We aim to make
+testing stateful Flask applications easier by providing fixtures that permit
+the developer to **make arbitrary database updates with the confidence that
+any changes made during a test will roll back** once the test exits.
 
 ## Quick examples
 
-Use the `db_session` fixture to make **database updates that won't persist beyond
+Use the [`db_session` fixture](#db_session) to make **database updates that won't persist beyond
 the body of the test**:
 
 ```python
@@ -44,9 +58,9 @@ def test_transaction_doesnt_persist(db_session):
    assert row.name != 'testing'
 ```
 
-The `db_engine` fixture works the same way, but **copies the API of
+The [`db_engine` fixture](#db_engine) works the same way, but **copies the API of
 SQLAlchemy's [Engine
-object](http://docs.sqlalchemy.org/en/latest/core/connections.html#sqlalchemy.engine.Engine)**.
+object](http://docs.sqlalchemy.org/en/latest/core/connections.html#sqlalchemy.engine.Engine)**:
 
 ```python
 def test_a_transaction_using_engine(db_engine):
@@ -58,10 +72,10 @@ def test_transaction_doesnt_persist(db_engine):
     assert row_name != 'testing' 
 ```
 
-Use configuration properties to **mock database connections in an app with fixtures that enforce
-nested transactions**, allowing any method from the codebase to run inside
-a test that imports a transactional fixture (`db_session` or `db_engine`) with
-the assurance that any database changes made will be rolled back at the end of the test:
+Use [configuration properties](#test-configuration-ini-or-cfg-file) to
+**mock database connections in an app and enforce nested transactions**,
+allowing any method from the codebase to run inside a test with the assurance
+that any database changes made will be rolled back at the end of the test:
 
 ```ini
 # tests/tox.ini
@@ -105,8 +119,8 @@ def test_transaction_doesnt_persist(db_session):
    assert row.name != 'testing'
 ```
 
-Use the **`@pytest.mark.transactional` mark to enforce that a test gets run
-inside a transaction**:
+Use the [`@pytest.mark.transactional` mark](#using-the-transactional-mark) 
+to **enforce that a test gets run inside a transaction**:
 
 ```python
 from api.database import db
@@ -136,18 +150,23 @@ Install using pip:
 pip install pytest-flask-sqlalchemy-transactions
 ```
 
+Once installed, pytest will detect the plugin automatically during test collection.
+For basic background on using third-party plugins with pytest, see the [pytest
+documentation](https://docs.pytest.org/en/latest/plugins.html?highlight=plugins).
+
 ### Development version
 
 Clone the repo from GitHub and switch into the new directory:
 
 ```
 git clone git@github.com:jeancochrane/pytest-flask-sqlalchemy-transactions.git
+cd pytest-flask-sqlalchemy-transactions
 ```
 
-You can install using pip if you'd like:
+You can install using pip:
 
 ```
-pip install -e .
+pip install .
 ```
 
 Or install the plugin dependencies manually:
@@ -161,18 +180,19 @@ pip install -r requirements/main.txt
 ### Conftest setup
 
 This plugin assumes that a fixture called `_db` has been
-defined in the root conftest file for your tests. As a fixture, `_db` should
-expose access to a valid Session object that can interact with your database,
-for example via the [`SQLAlchemy` initialization object](http://flask-sqlalchemy.pocoo.org/2.3/api/#flask_sqlalchemy.SQLAlchemy)
+defined in the root conftest file for your tests. The `_db` fixture should
+expose access to a valid [SQLAlchemy `Session` object](http://docs.sqlalchemy.org/en/latest/orm/session_api.html?highlight=session#sqlalchemy.orm.session.Session) that can interact with your database,
+for example via the [`SQLAlchemy` initialization class](http://flask-sqlalchemy.pocoo.org/2.3/api/#flask_sqlalchemy.SQLAlchemy)
 that configures Flask-SQLAlchemy.
 
 The fixtures in this plugin depend on this `_db` fixture to access your
-database and create nested transactions to run tests in.
+database and create nested transactions to run tests in. **You must define
+this fixture in your `conftest.py` file for the plugin to work.**
 
 An example setup that will produce a valid `_db` fixture could look like this
 (this example comes from the [test setup](./tests/_conftest.py#L25-L61) for this repo):
 
-```
+```python
 @pytest.fixture(scope='session')
 def database(request):
     '''
@@ -231,13 +251,13 @@ def _db(database):
 ### Test configuration (.ini or .cfg file)
 
 This plugin requires that you set up a test configuration file with a few
-specific properties under the `[pytest]` section. For background on pytest
+specific properties under the `[pytest]` section. For basic background on pytest
 configuration, see the [pytest docs](https://docs.pytest.org/en/latest/customize.html#adding-default-options).
 
 #### `db-connection-string`
 
 The `db-connection-string` property allows the plugin to access a test
-database. **This property is required.** 
+database. **This property is required.**
 
 Example:
 
@@ -250,9 +270,11 @@ db-connection-string=postgresql://postgres@localhost:5432/pytest_test
 
 The `mocked-engines` property directs the plugin to [patch](https://docs.python.org/3/library/unittest.mock.html#unittest.mock.patch)
 objects in your codebase, typically SQLAlchemy [Engine](http://docs.sqlalchemy.org/en/latest/core/connections.html#sqlalchemy.engine.Engine)
-instances, replacing them with the `db_engine` fixture in tests where either
-of the transactional fixtures (`db_session` or `db_engine`) are listed as dependencies.
-Objects should be formatted as standard Python import paths, like `api.database.engine`.
+instances, replacing them with the [`db_engine` fixture](#db_engine) in tests where either
+of the transactional fixtures ([`db_session`](#db_session) or [`db_engine`](#db_engine))
+are listed as dependencies. The values for this property should be formatted as standard
+Python import paths, like `api.database.engine`.
+
 This property is optional.
 
 Example:
@@ -273,12 +295,12 @@ mocked-engines=api.database.engine api.database.second_engine
 
 The `mocked-sessions` property directs the plugin to [patch](https://docs.python.org/3/library/unittest.mock.html#unittest.mock.patch)
 objects in your codebase, typically SQLAlchemy [Session](http://docs.sqlalchemy.org/en/latest/core/connections.html#sqlalchemy.engine.Engine)
-instances, replacing them with the `db_session` fixture in tests where either
-of the transactional fixtures (`db_session` or `db_engine`) are listed as dependencies.
-Objects should be formatted as standard Python import paths, like `api.database.db.session`.
-This property is optional.
+instances, replacing them with the [`db_session`](#db_session) fixture in tests where either
+of the transactional fixtures ([`db_session`](#db_session) or [`db_engine`](#db_engine)) are
+listed as dependencies. Values for this property should be formatted as standard Python import
+paths, like `api.database.db.session`.
 
-To patch multiple objects at once, separate the paths with a whitespace.
+This property is optional.
 
 Example:
 
@@ -287,16 +309,23 @@ Example:
 mocked-sessions=api.database.db.session
 ```
 
+To patch multiple objects at once, separate the paths with a whitespace:
+
+```ini
+[pytest]
+mocked-sessions=api.database.db.session api.database.second_db.session
+```
+
 #### `mocked-sessionmakers`
 
 The `mocked-sessionmakers` property directs the plugin to [patch](https://docs.python.org/3/library/unittest.mock.html#unittest.mock.patch)
 objects in your codebase, typically SQLAlchemy [sessionmaker](http://docs.sqlalchemy.org/en/latest/orm/session_api.html?highlight=sessionmaker#sqlalchemy.orm.session.sessionmaker)
-factories, replacing them with a mocked class that will return the `db_session` fixture
-in tests where either of the transactional fixtures (`db_session` or `db_engine`)
-are listed as dependencies. Objects should be formatted as standard Python import paths,
-like `api.database.WorkerSessionmaker`. This property is optional.
+factories, replacing them with a mocked class that will return the [`db_session`](#db_session) fixture
+in tests where either of the transactional fixtures ([`db_session`](#db_session) or [`db_engine`](#db_engine))
+are listed as dependencies. Values for this property should be formatted as standard Python import paths,
+like `api.database.WorkerSessionmaker`.
 
-To patch multiple objects at once, separate the paths with a whitespace.
+This property is optional.
 
 Example:
 
@@ -305,12 +334,19 @@ Example:
 mocked-sessionmakers=api.database.WorkerSessionmaker
 ```
 
+To patch multiple objects at once, separate the paths with a whitespace.
+
+```ini
+[pytest]
+mocked-sessionmakers=api.database.WorkerSessionmaker api.database.SecondWorkerSessionmaker
+```
+
 ## Fixtures
 
 This plugin provides two fixtures for performing database updates inside nested
-transactions that get rolled back at the end of a test: `db_engine` and
-`db_session`. In addition, the plugin provides a fixture for direct database
-changes that will not get rolled back: `module_engine`. This fixture can be
+transactions that get rolled back at the end of a test: [`db_session`](#db_session) and
+[`db_engine`](#db_engine). In addition, the plugin provides a fixture for direct database
+changes that will not get rolled back: [`module_engine`](#module_engine). This fixture can be
 useful for setting up module- or session-scoped state.
 
 ### `db_session`
@@ -320,8 +356,8 @@ rolled back when the test exits. It exposes the same API as [SQLAlchemy's
 `scoped_session` object](http://docs.sqlalchemy.org/en/latest/orm/contextual.html#sqlalchemy.orm.scoping.scoped_session).
 
 Listing this fixture as a dependency will activate any mocks that are specified 
-by the configuration properties `mocked-engines`, `mocked-sessions`, or
-`mocked-sessionmakers` in a configuration file.
+by the configuration properties [`mocked-engines`](#mocked-engines), [`mocked-sessions`](#mocked-sessions),
+or [`mocked-sessionmakers`](#mocked-sessionmakers) in a configuration file.
 
 Example:
 
@@ -340,7 +376,7 @@ def test_transaction_doesnt_persist(db_session):
 
 ### `db_engine`
 
-Like `db_session`, the `db_engine` fixture allows you to perform direct updates
+Like [`db_session`](#db_session), the `db_engine` fixture allows you to perform direct updates
 against the test database that will be rolled back when the test exits. It is
 an instance of Python's built-in [`MagicMock`](https://docs.python.org/3/library/unittest.mock.html#unittest.mock.MagicMock)
 class, with a spec set to match the API of [SQLAlchemy's
@@ -357,8 +393,9 @@ methods of the `Engine` API can be called, but they will not perform any useful
 work.
 
 Listing this fixture as a dependency will activate any mocks that are specified 
-by the configuration properties `mocked-engines`, `mocked-sessions`, or
-`mocked-sessionmakers` in a configuration file.
+by the configuration properties [`mocked-engines`](#mocked-engines),
+[`mocked-sessions`](#mocked-sessions), or [`mocked-sessionmakers`](#mocked-sessionmakers)
+in a configuration file.
 
 Example:
 
@@ -374,15 +411,15 @@ def test_transaction_doesnt_persist(db_engine):
 
 ### `module_engine` 
 
-In contrast to `db_session` and `db_engine`, the `module_engine` fixture does
-not wrap its test in a database transaction. Instead, this fixture returns a
-SQLAlchemy `Engine` object that can be used to set up persistent state in tests
-or fixtures. Its API is identical to the [SQLAlchemy `Engine`
-API](http://docs.sqlalchemy.org/en/latest/core/connections.html#sqlalchemy.engine.Engine).
+In contrast to [`db_session`](#db_session) and [`db_engine`](#db_engine),
+the `module_engine` fixture does not wrap its test in a database transaction.
+Instead, this fixture returns a SQLAlchemy `Engine` object that can be used to
+set up persistent state in tests or fixtures. Its API is identical to the
+[SQLAlchemy `Engine` API](http://docs.sqlalchemy.org/en/latest/core/connections.html#sqlalchemy.engine.Engine).
 
 Listing this fixture as a dependency **will not** activate any mocks that are specified 
-by the configuration properties `mocked-engines`, `mocked-sessions`, or
-`mocked-sessionmakers` in a configuration file.
+by the configuration properties [`mocked-engines`](#mocked-engines), [`mocked-sessions`](#mocked-sessions),
+or [`mocked-sessionmakers`](#mocked-sessionmakers) in a configuration file.
 
 Example:
 
@@ -399,16 +436,17 @@ def test_module_engine_changes_persist(db_engine):
 ## Using the `transactional` mark
 
 If you want to enforce transactional context but you don't need to use either
-of the built-in transactional fixtures (`db_session` or `db_engine`), you can
-use the `**@pytest.mark.transactional**` decorator to mark that a test should
-be run inside a transaction.
+of the built-in transactional fixtures ([`db_session`](#db_session) or [`db_engine`](#db_engine)),
+you can use the **`@pytest.mark.transactional`** decorator to mark that a test should
+be run inside a transaction. For basic background on marks, see the [pytest
+documentation](https://docs.pytest.org/en/latest/mark.html).
 
 Note that since this approach assumes that you'll be performing database
 updates using connections defined in your app, you **must** mock the
-appropriate connections using the configuration properties `mocked-sessions`,
-`mocked-engines`, or `mocked-sessionmakers`. The `transactional` mark is, in
-essence, a way of triggering these mocks, so the mocks themselves are
-important.
+appropriate connections using the configuration properties [`mocked-sessions`](#mocked-sessions),
+[`mocked-engines`](#mocked-engines), or [`mocked-sessionmakers`](#mocked-sessionmakers).
+The `transactional` mark is, in essence, a way of triggering these mocks, so the mocks
+themselves are necessary to create the transactional context that you expect.
 
 Example:
 
