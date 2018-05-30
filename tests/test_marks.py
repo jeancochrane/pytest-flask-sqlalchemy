@@ -1,19 +1,11 @@
-import os
-import sys
-
 def test_mark_rolls_back_db_updates(db_testdir):
     '''
     Test that the mark can successfully roll back any database transactions
     triggered by a test.
     '''
-    # The Testdir fixture appears to alter sys.path such that the import path
-    # finder starts at the parent directory -- adjust this behavior so that we
-    # can perform relative imports
-    sys.path.append(os.getcwd())
-
     db_testdir.makeini("""
         [pytest]
-        mocked-sessions=database.db.session
+        mocked-sessions=test_mark_rolls_back_db_updates0.database.db.session
     """)
 
     db_testdir.makepyfile(__init__='')
@@ -25,7 +17,7 @@ def test_mark_rolls_back_db_updates(db_testdir):
     """)
 
     db_testdir.makepyfile("""
-        from database import db
+        from .database import db
         import pytest
 
         @pytest.mark.transactional
