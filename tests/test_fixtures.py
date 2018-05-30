@@ -294,39 +294,3 @@ def test_use_raw_connection_to_alter_database(db_testdir):
 
     result = db_testdir.runpytest()
     result.assert_outcomes(passed=2)
-
-
-def test_module_engine(db_testdir):
-    '''
-    Make sure that the `module_engine` fixture can produce state changes that
-    persist across tests.
-    '''
-    db_conn = os.environ['TEST_DATABASE_URL']
-
-    db_testdir.makeini("""
-        [pytest]
-        db-connection-string={}
-    """.format(db_conn))
-
-    db_testdir.makepyfile("""
-        def test_module_engine(person, module_engine):
-
-            module_engine.execute('''
-                insert into person (id, name)
-                values (1, 'tester')
-            ''')
-
-            new_person = module_engine.execute('''select name from person where id = 1''').fetchone()[0]
-            assert new_person == 'tester'
-
-        def test_module_engine_changes_persist(person, module_engine):
-
-            new_person = module_engine.execute('''select name from person where id = 1''').fetchone()[0]
-            assert new_person == 'tester'
-
-            # Perform cleanup
-            module_engine.execute('''truncate person''')
-    """)
-
-    result = db_testdir.runpytest()
-    result.assert_outcomes(passed=2)
