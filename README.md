@@ -105,6 +105,25 @@ def test_transaction_doesnt_persist(db_session):
    assert row.name != 'testing'
 ```
 
+Use the **`@pytest.mark.transactional` mark to enforce that a test gets run
+inside a transaction**:
+
+```python
+from api.database import db
+
+@pytest.mark.transactional
+def test_db_update():
+    row = db.session.query(Table).get(1)
+    row.name = 'testing'
+    db.session.add(row)
+    db.session.commit()
+
+@pytest.mark.transactional
+def test_db_update_doesnt_persist():
+    row = db.session.query(Table).get(1)
+    assert row.name != 'testing'
+```
+
 # Usage
 
 ## Installation
@@ -215,7 +234,7 @@ This plugin requires that you set up a test configuration file with a few
 specific properties under the `[pytest]` section. For background on pytest
 configuration, see the [pytest docs](https://docs.pytest.org/en/latest/customize.html#adding-default-options).
 
-### `db-connection-string`
+#### `db-connection-string`
 
 The `db-connection-string` property allows the plugin to access a test
 database. **This property is required.** 
@@ -227,7 +246,7 @@ Example:
 db-connection-string=postgresql://postgres@localhost:5432/pytest_test
 ```
 
-### `mocked-engines`
+#### `mocked-engines`
 
 The `mocked-engines` property directs the plugin to [patch](https://docs.python.org/3/library/unittest.mock.html#unittest.mock.patch)
 objects in your codebase, typically SQLAlchemy [Engine](http://docs.sqlalchemy.org/en/latest/core/connections.html#sqlalchemy.engine.Engine)
@@ -250,7 +269,7 @@ To patch multiple objects at once, separate the paths with a whitespace:
 mocked-engines=api.database.engine api.database.second_engine
 ```
 
-### `mocked-sessions`
+#### `mocked-sessions`
 
 The `mocked-sessions` property directs the plugin to [patch](https://docs.python.org/3/library/unittest.mock.html#unittest.mock.patch)
 objects in your codebase, typically SQLAlchemy [Session](http://docs.sqlalchemy.org/en/latest/core/connections.html#sqlalchemy.engine.Engine)
@@ -268,7 +287,7 @@ Example:
 mocked-sessions=api.database.db.session
 ```
 
-### `mocked-sessionmakers`
+#### `mocked-sessionmakers`
 
 The `mocked-sessionmakers` property directs the plugin to [patch](https://docs.python.org/3/library/unittest.mock.html#unittest.mock.patch)
 objects in your codebase, typically SQLAlchemy [sessionmaker](http://docs.sqlalchemy.org/en/latest/orm/session_api.html?highlight=sessionmaker#sqlalchemy.orm.session.sessionmaker)
@@ -375,6 +394,38 @@ def test_module_engine(module_engine):
 def test_module_engine_changes_persist(db_engine):
     row_name = db_engine.execute('''SELECT name FROM table WHERE id = 1''').fetchone()[0]
     assert row_name == 'testing' 
+```
+
+## Using the `transactional` mark
+
+If you want to enforce transactional context but you don't need to use either
+of the built-in transactional fixtures (`db_session` or `db_engine`), you can
+use the `**@pytest.mark.transactional**` decorator to mark that a test should
+be run inside a transaction.
+
+Note that since this approach assumes that you'll be performing database
+updates using connections defined in your app, you **must** mock the
+appropriate connections using the configuration properties `mocked-sessions`,
+`mocked-engines`, or `mocked-sessionmakers`. The `transactional` mark is, in
+essence, a way of triggering these mocks, so the mocks themselves are
+important.
+
+Example:
+
+```python
+from api.database import db
+
+@pytest.mark.transactional
+def test_db_update():
+    row = db.session.query(Table).get(1)
+    row.name = 'testing'
+    db.session.add(row)
+    db.session.commit()
+
+@pytest.mark.transactional
+def test_db_update_doesnt_persist():
+    row = db.session.query(Table).get(1)
+    assert row.name != 'testing'
 ```
 
 # Development
