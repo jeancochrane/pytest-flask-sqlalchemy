@@ -23,11 +23,11 @@ setup(
     license='MIT',
 
     packages=['transactions'],
-    install_requires=[pytest>=3.2.1,
-                      pytest-mock>=1.6.2,
-                      SQLAlchemy>=1.2.2
-                      Flask-SQLAlchemy>=2.3],
-    extras_require={'tests': [pytest-postgresql]},
+    install_requires=['pytest>=3.2.1',
+                      'pytest-mock>=1.6.2',
+                      'SQLAlchemy>=1.2.2'
+                      'Flask-SQLAlchemy>=2.3'],
+    extras_require={'tests': ['pytest-postgresql']},
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Plugins',
