@@ -4,11 +4,12 @@ pytest-flask-sqlalchemy-transactions
 
 Run tests in transactions using pytest, Flask, and SQLAlchemy.
 '''
-import os
 from setuptools import setup
 
-with open(os.path.join('requirements', 'main.txt')) as reqfile:
-    requirements = reqfile.read().splitlines()
+
+def readme():
+    with open('README.md') as f:
+        return f.read()
 
 setup(
     # Metadata
@@ -18,12 +19,14 @@ setup(
 
     url='https://github.com/jeancochrane/pytest-flask-sqlalchemy-transactions',
     description='Run tests in transactions using pytest, Flask, and SQLalchemy.',
-    long_description=__doc__,
+    long_description=readme(),
     license='MIT',
 
     packages=['transactions'],
-    install_requires=requirements,
-
+    install_requires=[pytest>=3.2.1,
+                      pytest-mock>=1.6.2,
+                      SQLAlchemy>=1.2.2
+                      Flask-SQLAlchemy>=2.3],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Plugins',
