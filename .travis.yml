@@ -13,6 +13,5 @@ addons:
   postgresql: "9.6"
 install:
   - pip install --upgrade pip
-  - pip install pytest-postgresql
-  - pip install -e .
+  - pip install -e .[tests]
 script: pytest
