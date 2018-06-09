@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/jeancochrane/pytest-flask-sqlalchemy-transactions.svg?branch=master)](https://travis-ci.org/jeancochrane/pytest-flask-sqlalchemy-transactions) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/Django.svg)
 
 A [pytest](https://docs.pytest.org/en/latest/) plugin providing fixtures for running tests in
-transactions using Flask and SQLAlchemy.
+transactions using [Flask-SQLAlchemy](http://flask-sqlalchemy.pocoo.org/latest/).
 
 ## Contents
 
@@ -15,7 +15,7 @@ transactions using Flask and SQLAlchemy.
         - [Development version](#development-version)
     - [Configuration](#configuration)
         - [Conftest setup](#conftest-setup)
-        - [Test configuration (.ini or .cfg file)](#test-configuration-ini-or-cfg-file)
+        - [Test configuration](#test-configuration)
             - [`mocked-engines`](#mocked-engines)
             - [`mocked-sessions`](#mocked-sessions)
             - [`mocked-sessionmakers`](#mocked-sessionmakers)
@@ -32,11 +32,11 @@ transactions using Flask and SQLAlchemy.
 
 Inspired by [Django's built-in support for transactional
 tests](https://jeancochrane.com/blog/django-test-transactions), this plugin 
-seeks to provide comprehensive, easy-to-use fixtures for wrapping tests in
-database transactions using Pytest, Flask, and SQLAlchemy. We aim to make
-testing stateful Flask applications easier by providing fixtures that permit
-the developer to **make arbitrary database updates with the confidence that
-any changes made during a test will roll back** once the test exits.
+seeks to provide comprehensive, easy-to-use Pytest fixtures for wrapping tests in
+database transactions for [Flask-SQLAlchemy](http://flask-sqlalchemy.pocoo.org/latest/)
+apps. The goal is to make testing stateful Flask-SQLAlchemy applications easier by
+providing fixtures that permit the developer to **make arbitrary database updates
+with the confidence that any changes made during a test will roll back** once the test exits.
 
 ## Quick examples
 
@@ -70,7 +70,7 @@ def test_transaction_doesnt_persist(db_engine):
     assert row_name != 'testing' 
 ```
 
-Use [configuration properties](#test-configuration-ini-or-cfg-file) to
+Use [configuration properties](#test-configuration) to
 **mock database connections in an app and enforce nested transactions**,
 allowing any method from the codebase to run inside a test with the assurance
 that any database changes made will be rolled back at the end of the test:
@@ -246,11 +246,11 @@ def _db(database):
     return database
 ```
 
-### Test configuration (.ini or .cfg file)
+### Test configuration
 
-This plugin allows you to configure a few different properties in the test
-configuration file in order to handle the specific database connection needs
-of an app. For basic background on setting up pytest configuration files, see
+This plugin allows you to configure a few different properties in a 
+`setup.cfg` test configuration file in order to handle the specific database connection needs
+of your app. For basic background on setting up pytest configuration files, see
 the [pytest docs](https://docs.pytest.org/en/latest/customize.html#adding-default-options).
 
 All three configuration properties ([`mocked-engines`](#mocked-engines),
