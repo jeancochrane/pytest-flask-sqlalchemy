@@ -1,4 +1,4 @@
-from .fixtures import _transaction, _engine, _session, db_session, db_engine
+from .fixtures import _db, _transaction, _engine, _session, db_session, db_engine
 from .hooks import pytest_collection_modifyitems
 
 def pytest_addoption(parser):

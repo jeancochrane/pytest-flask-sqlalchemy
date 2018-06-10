@@ -87,7 +87,7 @@ mocked-engines=database.engine
 # In database.py
 
 db = flask_sqlalchemy.SQLAlchemy()
-engine = sqlalchemy.create_engine('db_connection_string')
+engine = sqlalchemy.create_engine('DATABASE_URI')
 ```
 
 ```python
@@ -489,7 +489,9 @@ Next, install a development version of the plugin:
 pip install -e .
 ```
 
-Export a database connection string that the tests can use:
+Export a [database connection string](http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls)
+that the tests can use (the database referenced by the string will be created
+during test setup, so it does not need to exist):
 
 ```
 export TEST_DATABASE_URL=<db_connection_string>

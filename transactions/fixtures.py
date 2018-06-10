@@ -5,6 +5,22 @@ import pytest
 import sqlalchemy as sa
 
 
+@pytest.fixture(scope='module')
+def _db():
+    '''
+    A user-defined _db fixture is required to provide the plugin with a SQLAlchemy
+    Session object that can access the test database. If the user hasn't defined
+    that fixture, raise an error.
+    '''
+    msg = ("_db fixture not defined. The pytest-flask-sqlalchemy-transactions plugin " +
+           "requires you to define a _db fixture that returns a SQLAlchemy session " +
+           "with access to your test database. For more information, see the plugin " +
+           "documentation: " +
+           "https://github.com/jeancochrane/pytest-flask-sqlalchemy-transactions#conftest-setup")
+
+    raise NotImplementedError(msg)
+
+
 @pytest.fixture(scope='function')
 def _transaction(request, _db, mocker):
     '''

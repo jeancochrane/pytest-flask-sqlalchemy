@@ -59,3 +59,77 @@ def test_mocked_sessionmakers(db_testdir):
 
     result = db_testdir.runpytest()
     result.assert_outcomes(passed=1)
+
+
+def test_missing_db_fixture(testdir):
+    '''
+    Test that in the case where the user neglects to define a _db fixture, any
+    tests requiring transactional context will raise an error.
+    '''
+    # Create a conftest file that is missing a _db fixture but is otherwise
+    # valid for a Flask-SQLAlchemy test suite
+    conftest = """
+        import os
+
+        import pytest
+        import sqlalchemy as sa
+        from flask import Flask
+        from flask_sqlalchemy import SQLAlchemy
+        from pytest_postgresql.factories import (init_postgresql_database,
+                                                drop_postgresql_database)
+
+        # Retrieve a database connection string from the shell environment
+        try:
+            DB_CONN = os.environ['TEST_DATABASE_URL']
+        except KeyError:
+            raise KeyError('TEST_DATABASE_URL not found. You must export a database ' +
+                        'connection string to the environmental variable ' +
+                        'TEST_DATABASE_URL in order to run tests.')
+        else:
+            DB_OPTS = sa.engine.url.make_url(DB_CONN).translate_connect_args()
+
+        pytest_plugins = ['pytest-flask-sqlalchemy-transactions']
+
+
+        @pytest.fixture(scope='session')
+        def database(request):
+            '''
+            Create a Postgres database for the tests, and drop it when the tests are done.
+            '''
+            pg_host = DB_OPTS.get("host")
+            pg_port = DB_OPTS.get("port")
+            pg_user = DB_OPTS.get("username")
+            pg_db = DB_OPTS["database"]
+
+            init_postgresql_database(pg_user, pg_host, pg_port, pg_db)
+
+            @request.addfinalizer
+            def drop_database():
+                drop_postgresql_database(pg_user, pg_host, pg_port, pg_db, 9.6)
+
+
+        @pytest.fixture(scope='session')
+        def app(database):
+            '''
+            Create a Flask app context for the tests.
+            '''
+            app = Flask(__name__)
+
+            app.config['SQLALCHEMY_DATABASE_URI'] = DB_CONN
+
+            return app
+    """
+
+    testdir.makeconftest(conftest)
+
+    # Define a test that will always pass, assuming that fixture setup works
+    testdir.makepyfile("""
+        def test_missing_db_fixture(db_session):
+            assert True
+    """)
+
+    result = testdir.runpytest()
+    result.assert_outcomes(error=1)
+    result.stdout.fnmatch_lines([
+        '*NotImplementedError: _db fixture not defined*'
+    ])
