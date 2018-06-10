@@ -170,7 +170,7 @@ def db_session(_engine, _session, _transaction):
     can interact with the database in the tests.
 
     Use this fixture in tests when you would like to use the SQLAlchemy ORM
-    API, just as you might use the `api.database.db.session` object.
+    API, just as you might use a SQLAlchemy Session object.
     '''
     return _session
 
@@ -183,6 +183,6 @@ def db_engine(_engine, _session, _transaction):
     transactional Engine object that can interact with the database in the tests.
 
     Use this fixture in tests when you would like to run raw SQL queries using the
-    SQLAlchemy Engine API, just as you might use the `api.database.engine` object.
+    SQLAlchemy Engine API.
     '''
     return _engine

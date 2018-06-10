@@ -76,22 +76,22 @@ allowing any method from the codebase to run inside a test with the assurance
 that any database changes made will be rolled back at the end of the test:
 
 ```ini
-# tests/tox.ini
+# In setup.cfg
 
 [pytest]
-mocked-sessions=api.database.db.session
-mocked-engines=api.database.engine
+mocked-sessions=database.db.session
+mocked-engines=database.engine
 ```
 
 ```python
-# api/database.py
+# In database.py
 
 db = flask_sqlalchemy.SQLAlchemy()
 engine = sqlalchemy.create_engine('db_connection_string')
 ```
 
 ```python
-# api/models.py
+# In models.py
 
 class Table(db.Model):
     __tablename__ = 'table'
@@ -105,7 +105,7 @@ class Table(db.Model):
 ```
 
 ```python
-# tests/test_api.py
+# In tests/test_set_name.py
 
 def test_set_name(db_session):
     row = db_session.query(Table).get(1)
@@ -121,7 +121,7 @@ Use the [`@pytest.mark.transactional` mark](#using-the-transactional-mark)
 to **enforce that a test gets run inside a transaction**:
 
 ```python
-from api.database import db
+from database import db
 
 @pytest.mark.transactional
 def test_db_update():
@@ -279,20 +279,30 @@ any database updates performed by the objects get rolled back at the end of
 the test. 
 
 The value for this property should be formatted as a whitespace-separated list 
-of standard Python import paths, like `api.database.engine`. This property is **optional**.
+of standard Python import paths, like `database.engine`. This property is **optional**.
 
 Example:
 
+```python
+# In database.py
+
+engine = sqlalchemy.create_engine(DATABASE_URI)
+```
+
 ```ini
+# In setup.cfg
+
 [pytest]
-mocked-engines=api.database.engine
+mocked-engines=database.engine
 ```
 
 To patch multiple objects at once, separate the paths with a whitespace:
 
 ```ini
+# In setup.cfg
+
 [pytest]
-mocked-engines=api.database.engine api.database.second_engine
+mocked-engines=database.engine database.second_engine
 ```
 
 #### `mocked-sessions`
@@ -304,45 +314,63 @@ any database updates performed by the objects get rolled back at the end of
 the test. 
 
 The value for this property should be formatted as a whitespace-separated list 
-of standard Python import paths, like `api.database.db.session`. This property is **optional**.
+of standard Python import paths, like `database.db.session`. This property is **optional**.
 
 Example:
 
+```python
+# In database.py
+
+db = SQLAlchemy()
+```
+
 ```ini
+# In setup.cfg
+
 [pytest]
-mocked-sessions=api.database.db.session
+mocked-sessions=database.db.session
 ```
 
 To patch multiple objects at once, separate the paths with a whitespace:
 
 ```ini
+# In setup.cfg
+
 [pytest]
-mocked-sessions=api.database.db.session api.database.second_db.session
+mocked-sessions=database.db.session database.second_db.session
 ```
 
 #### `mocked-sessionmakers`
 
 The `mocked-sessionmakers` property directs the plugin to [patch](https://docs.python.org/3/library/unittest.mock.html#unittest.mock.patch)
-objects in your codebase, typically [SQLAlchemy `sessionmaker`
-factories](http://docs.sqlalchemy.org/en/latest/orm/session_api.html?highlight=sessionmaker#sqlalchemy.orm.session.sessionmaker),
+objects in your codebase, typically instances of [SQLAlchemy's `sessionmaker`
+factory](http://docs.sqlalchemy.org/en/latest/orm/session_api.html?highlight=sessionmaker#sqlalchemy.orm.session.sessionmaker),
 replacing them with a mocked class that will return the transactional
-[`db_session`](#db_session) fixture.
+[`db_session`](#db_session) fixture. This can be useful if you have
+pre-configured instances of sessionmaker objects that you import in the code
+to spin up sessions on the fly.
 
 The value for this property should be formatted as a whitespace-separated list 
-of standard Python import paths, like `api.database.WorkerSessionmaker`. This property is **optional**.
+of standard Python import paths, like `database.WorkerSessionmaker`. This property is **optional**.
 
 Example:
 
+```python
+# In database.py
+
+WorkerSessionmaker = sessionmaker()
+```
+
 ```ini
 [pytest]
-mocked-sessionmakers=api.database.WorkerSessionmaker
+mocked-sessionmakers=database.WorkerSessionmaker
 ```
 
 To patch multiple objects at once, separate the paths with a whitespace.
 
 ```ini
 [pytest]
-mocked-sessionmakers=api.database.WorkerSessionmaker api.database.SecondWorkerSessionmaker
+mocked-sessionmakers=database.WorkerSessionmaker database.SecondWorkerSessionmaker
 ```
 
 ## Fixtures
@@ -430,7 +458,7 @@ themselves are necessary to create the transactional context that you expect.
 Example:
 
 ```python
-from api.database import db
+from database import db
 
 @pytest.mark.transactional
 def test_db_update():
