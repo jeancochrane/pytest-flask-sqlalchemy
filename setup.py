@@ -12,16 +12,14 @@ def readme():
         return f.read()
 
 setup(
-    # Metadata
     name='pytest-flask-sqlalchemy-transactions',
     author='Jean Cochrane',
     author_email='jean@jeancochrane.com',
-
     url='https://github.com/jeancochrane/pytest-flask-sqlalchemy-transactions',
     description='Run tests in transactions using pytest, Flask, and SQLalchemy.',
     long_description=readme(),
     license='MIT',
-
+    version='0.0.1'
     packages=['transactions'],
     install_requires=['pytest>=3.2.1',
                       'pytest-mock>=1.6.2',
