@@ -19,7 +19,7 @@ setup(
     description='Run tests in transactions using pytest, Flask, and SQLalchemy.',
     long_description=readme(),
     license='MIT',
-    version='0.0.1'
+    version='0.0.1',
     packages=['transactions'],
     install_requires=['pytest>=3.2.1',
                       'pytest-mock>=1.6.2',
