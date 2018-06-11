@@ -18,6 +18,7 @@ setup(
     url='https://github.com/jeancochrane/pytest-flask-sqlalchemy-transactions',
     description='Run tests in transactions using pytest, Flask, and SQLalchemy.',
     long_description=readme(),
+    long_description_content_type='text/markdown',
     license='MIT',
     version='0.0.1',
     packages=['transactions'],

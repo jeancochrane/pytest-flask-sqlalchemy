@@ -22,7 +22,6 @@ transactions using [Flask-SQLAlchemy](http://flask-sqlalchemy.pocoo.org/latest/)
     - [Fixtures](#fixtures)
         - [`db_session`](#db_session)
         - [`db_engine`](#db_engine)
-    - [Using the `transactional` mark](#using-the-transactional-mark)
 - [**Development**](#development)
     - [Running the tests](#running-the-tests)
     - [Acknowledgements](#acknowledgements)
@@ -115,25 +114,6 @@ def test_set_name(db_session):
 def test_transaction_doesnt_persist(db_session):
    row = db_session.query(Table).get(1) 
    assert row.name != 'testing'
-```
-
-Use the [`@pytest.mark.transactional` mark](#using-the-transactional-mark) 
-to **enforce that a test gets run inside a transaction**:
-
-```python
-from database import db
-
-@pytest.mark.transactional
-def test_db_update():
-    row = db.session.query(Table).get(1)
-    row.name = 'testing'
-    db.session.add(row)
-    db.session.commit()
-
-@pytest.mark.transactional
-def test_db_update_doesnt_persist():
-    row = db.session.query(Table).get(1)
-    assert row.name != 'testing'
 ```
 
 # Usage
@@ -262,13 +242,9 @@ rolled back when the test exits. Using these patches, you can call methods from
 your codebase that alter database state with the knowledge that no changes will persist
 beyond the body of the test.
 
-The configured patches are applied in tests where either one of two conditions
-are true:
-
-1. a transactional fixture ([`db_session`](#db_session) or [`db_engine`](#db_engine))
-is listed as a dependency, or
-2. the [`@pytest.mark.transactional`](#using-the-transactional-mark)
-mark is active.
+The configured patches are only applied in tests where a transactional fixture
+(either [`db_session`](#db_session) or [`db_engine`](#db_engine)) is included
+in the test function arguments.
 
 #### `mocked-engines`
 
@@ -386,9 +362,10 @@ The `db_session` fixture allows you to perform direct updates that will be
 rolled back when the test exits. It exposes the same API as [SQLAlchemy's
 `scoped_session` object](http://docs.sqlalchemy.org/en/latest/orm/contextual.html#sqlalchemy.orm.scoping.scoped_session).
 
-Listing this fixture as a dependency will activate any mocks that are specified 
+Including this fixture as a function argument of a test will activate any mocks that are defined
 by the configuration properties [`mocked-engines`](#mocked-engines), [`mocked-sessions`](#mocked-sessions),
-or [`mocked-sessionmakers`](#mocked-sessionmakers) in a configuration file.
+or [`mocked-sessionmakers`](#mocked-sessionmakers) in the test configuration file for
+the duration of that test.
 
 Example:
 
@@ -423,10 +400,10 @@ Since `db_engine` is an instance of `MagicMock` with an `Engine` spec, other
 methods of the `Engine` API can be called, but they will not perform any useful
 work.
 
-Listing this fixture as a dependency will activate any mocks that are specified 
-by the configuration properties [`mocked-engines`](#mocked-engines),
-[`mocked-sessions`](#mocked-sessions), or [`mocked-sessionmakers`](#mocked-sessionmakers)
-in a configuration file.
+Including this fixture as a function argument of a test will activate any mocks that are defined
+by the configuration properties [`mocked-engines`](#mocked-engines), [`mocked-sessions`](#mocked-sessions),
+or [`mocked-sessionmakers`](#mocked-sessionmakers) in the test configuration file for
+the duration of that test.
 
 Example:
 
@@ -438,39 +415,6 @@ def test_a_transaction_using_engine(db_engine):
 def test_transaction_doesnt_persist(db_engine):
     row_name = db_engine.execute('''SELECT name FROM table WHERE id = 1''').fetchone()[0]
     assert row_name != 'testing' 
-```
-
-## Using the `transactional` mark
-
-If you want to enforce transactional context but you don't need to use either
-of the built-in transactional fixtures ([`db_session`](#db_session) or [`db_engine`](#db_engine)),
-you can use the **`@pytest.mark.transactional`** decorator to mark that a test should
-be run inside a transaction. For basic background on marks, see the [pytest
-documentation](https://docs.pytest.org/en/latest/mark.html).
-
-Note that since this approach assumes that you'll be performing database
-updates using connections defined in your app, you **must** mock the
-appropriate connections using the configuration properties [`mocked-sessions`](#mocked-sessions),
-[`mocked-engines`](#mocked-engines), or [`mocked-sessionmakers`](#mocked-sessionmakers).
-The `transactional` mark is, in essence, a way of triggering these mocks, so the mocks
-themselves are necessary to create the transactional context that you expect.
-
-Example:
-
-```python
-from database import db
-
-@pytest.mark.transactional
-def test_db_update():
-    row = db.session.query(Table).get(1)
-    row.name = 'testing'
-    db.session.add(row)
-    db.session.commit()
-
-@pytest.mark.transactional
-def test_db_update_doesnt_persist():
-    row = db.session.query(Table).get(1)
-    assert row.name != 'testing'
 ```
 
 # Development
