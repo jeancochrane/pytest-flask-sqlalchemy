@@ -27,7 +27,7 @@ transactions using [Flask-SQLAlchemy](http://flask-sqlalchemy.pocoo.org/latest/)
     - [Acknowledgements](#acknowledgements)
     - [Copyright](#copyright)
 
-## Motivation
+## <a name="motivation"></a>Motivation
 
 Inspired by [Django's built-in support for transactional
 tests](https://jeancochrane.com/blog/django-test-transactions), this plugin 
@@ -37,7 +37,7 @@ apps. The goal is to make testing stateful Flask-SQLAlchemy applications easier 
 providing fixtures that permit the developer to **make arbitrary database updates
 with the confidence that any changes made during a test will roll back** once the test exits.
 
-## Quick examples
+## <a name="quick-examples"></a>Quick examples
 
 Use the [`db_session` fixture](#db_session) to make **database updates that won't persist beyond
 the body of the test**:
@@ -116,11 +116,11 @@ def test_transaction_doesnt_persist(db_session):
    assert row.name != 'testing'
 ```
 
-# Usage
+# <a name="usage"></a>Usage
 
-## Installation
+## <a name="installation"></a>Installation
 
-### From PyPi
+### <a name="from-pypi"></a>From PyPi
 
 Install using pip:
 
@@ -132,7 +132,7 @@ Once installed, pytest will detect the plugin automatically during test collecti
 For basic background on using third-party plugins with pytest, see the [pytest
 documentation](https://docs.pytest.org/en/latest/plugins.html?highlight=plugins).
 
-### Development version
+### <a name="development-version"></a>Development version
 
 Clone the repo from GitHub and switch into the new directory:
 
@@ -153,9 +153,9 @@ Or install the plugin dependencies manually:
 pip install -r requirements/main.txt
 ```
 
-## Configuration
+## <a name="configuration"></a>Configuration
 
-### Conftest setup
+### <a name="conftest-setup"></a>Conftest setup
 
 This plugin assumes that a fixture called `_db` has been
 defined in the root conftest file for your tests. The `_db` fixture should
@@ -226,7 +226,7 @@ def _db(database):
     return database
 ```
 
-### Test configuration
+### <a name="test-configuration"></a>Test configuration
 
 This plugin allows you to configure a few different properties in a 
 `setup.cfg` test configuration file in order to handle the specific database connection needs
@@ -246,7 +246,7 @@ The configured patches are only applied in tests where a transactional fixture
 (either [`db_session`](#db_session) or [`db_engine`](#db_engine)) is included
 in the test function arguments.
 
-#### `mocked-engines`
+#### <a name="mocked-engines"></a>`mocked-engines`
 
 The `mocked-engines` property directs the plugin to [patch](https://docs.python.org/3/library/unittest.mock.html#unittest.mock.patch)
 objects in your codebase, typically SQLAlchemy [Engine](http://docs.sqlalchemy.org/en/latest/core/connections.html#sqlalchemy.engine.Engine)
@@ -281,7 +281,7 @@ To patch multiple objects at once, separate the paths with a whitespace:
 mocked-engines=database.engine database.second_engine
 ```
 
-#### `mocked-sessions`
+#### <a name="mocked-sessions"></a>`mocked-sessions`
 
 The `mocked-sessions` property directs the plugin to [patch](https://docs.python.org/3/library/unittest.mock.html#unittest.mock.patch)
 objects in your codebase, typically SQLAlchemy [Session](http://docs.sqlalchemy.org/en/latest/core/connections.html#sqlalchemy.engine.Engine)
@@ -316,7 +316,7 @@ To patch multiple objects at once, separate the paths with a whitespace:
 mocked-sessions=database.db.session database.second_db.session
 ```
 
-#### `mocked-sessionmakers`
+#### <a name="mocked-sessionmakers"></a>`mocked-sessionmakers`
 
 The `mocked-sessionmakers` property directs the plugin to [patch](https://docs.python.org/3/library/unittest.mock.html#unittest.mock.patch)
 objects in your codebase, typically instances of [SQLAlchemy's `sessionmaker`
@@ -349,14 +349,14 @@ To patch multiple objects at once, separate the paths with a whitespace.
 mocked-sessionmakers=database.WorkerSessionmaker database.SecondWorkerSessionmaker
 ```
 
-## Fixtures
+## <a name="fixtures"></a>Fixtures
 
 This plugin provides two fixtures for performing database updates inside nested
 transactions that get rolled back at the end of a test: [`db_session`](#db_session) and
 [`db_engine`](#db_engine). The fixtures provide similar functionality, but
 with different APIs.
 
-### `db_session`
+### <a name="db_session"></a>`db_session`
 
 The `db_session` fixture allows you to perform direct updates that will be
 rolled back when the test exits. It exposes the same API as [SQLAlchemy's
@@ -382,7 +382,7 @@ def test_transaction_doesnt_persist(db_session):
    assert row.name != 'testing'
 ```
 
-### `db_engine`
+### <a name="db_engine"></a>`db_engine`
 
 Like [`db_session`](#db_session), the `db_engine` fixture allows you to perform direct updates
 against the test database that will be rolled back when the test exits. It is
@@ -417,9 +417,9 @@ def test_transaction_doesnt_persist(db_engine):
     assert row_name != 'testing' 
 ```
 
-# Development
+# <a name="development"></a>Development
 
-## Running the tests
+## <a name="running-the-tests"></a>Running the tests
 
 Start by ensuring that all test requirements are installed:
 
@@ -447,7 +447,7 @@ Finally, run the tests using pytest:
 pytest
 ```
 
-## Acknowledgements
+## <a name="acknowledgements"></a>Acknowledgements
 
 This plugin was initially developed for testing
 [Dedupe.io](https://dedupe.io), a web app for record linkage and entity
@@ -459,7 +459,7 @@ whose blog post ["Delightful testing with pytest and
 Flask-SQLAlchemy"](http://alexmic.net/flask-sqlalchemy-pytest/) helped
 establish the basic approach on which this plugin builds.
 
-## Copyright
+## <a name="copyright"></a>Copyright
 
 Copyright (c) 2018 Jean Cochrane and DataMade. Released under the MIT License.
 
