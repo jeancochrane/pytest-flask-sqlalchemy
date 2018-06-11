@@ -147,12 +147,6 @@ You can install using pip:
 pip install .
 ```
 
-Or install the plugin dependencies manually:
-
-```
-pip install -r requirements/main.txt
-```
-
 ## <a name="configuration"></a>Configuration
 
 ### <a name="conftest-setup"></a>Conftest setup
@@ -421,19 +415,14 @@ def test_transaction_doesnt_persist(db_engine):
 
 ## <a name="running-the-tests"></a>Running the tests
 
-Start by ensuring that all test requirements are installed:
+To run the tests, start by installing a development version of the plugin that
+includes test dependencies:
 
 ```
-pip install -U -r requirements/main.txt -r requirements/tests.txt
+pip install -e .[tests]
 ```
 
-Next, install a development version of the plugin:
-
-```
-pip install -e .
-```
-
-Export a [database connection string](http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls)
+Next, export a [database connection string](http://docs.sqlalchemy.org/en/latest/core/engines.html#database-urls)
 that the tests can use (the database referenced by the string will be created
 during test setup, so it does not need to exist):
 
