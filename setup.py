@@ -20,7 +20,7 @@ setup(
     long_description=readme(),
     long_description_content_type='text/markdown',
     license='MIT',
-    version='0.0.1',
+    version='1.0.0',
     packages=['transactions'],
     install_requires=['pytest>=3.2.1',
                       'pytest-mock>=1.6.2',
