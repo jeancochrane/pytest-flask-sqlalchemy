@@ -13,6 +13,7 @@ transactions using [Flask-SQLAlchemy](http://flask-sqlalchemy.pocoo.org/latest/)
     - [Installation](#installation)
         - [From PyPi](#from-pypi)
         - [Development version](#development-version)
+        - [Supported backends](#supported-backends)
     - [Configuration](#configuration)
         - [Conftest setup](#conftest-setup)
         - [Test configuration](#test-configuration)
@@ -146,6 +147,20 @@ You can install using pip:
 ```
 pip install .
 ```
+
+### <a name="supported-backends">Supported backends</a>
+
+So far, pytest-flask-sqlalchemy has been most extensively tested against
+PostgreSQL 9.6. It should theoretically work with any backend that is supported
+by SQLAlchemy, but Postgres is the only backend that is currently tested by the
+test suite.
+
+Official support for SQLite and MySQL is [planned for a future
+release](https://github.com/jeancochrane/pytest-flask-sqlalchemy/issues/3).
+In the meantime, if you're using one of those backends and you run in to
+problems, we would greatly appreciate your help! [Open an
+issue](https://github.com/jeancochrane/pytest-flask-sqlalchemy/issues/new) if
+something isn't working as you expect.
 
 ## <a name="configuration"></a>Configuration
 
