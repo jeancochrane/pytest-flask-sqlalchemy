@@ -448,6 +448,10 @@ whose blog post ["Delightful testing with pytest and
 Flask-SQLAlchemy"](http://alexmic.net/flask-sqlalchemy-pytest/) helped
 establish the basic approach on which this plugin builds.
 
+Many thanks to [Igor Ghisi](https://github.com/igortg/), who donated the PyPi
+package name. Igor had been working on a similar plugin and proposed combining
+efforts. Thanks to Igor, the plugin name is much stronger.
+
 ## <a name="copyright"></a>Copyright
 
 Copyright (c) 2018 Jean Cochrane and DataMade. Released under the MIT License.

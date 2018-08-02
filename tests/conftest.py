@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 # This import prevents SQLAlchemy from throwing an AttributeError
@@ -14,7 +16,7 @@ def conftest():
     Load configuration file for the tests to a string, in order to run it in
     its own temporary directory.
     '''
-    with open('tests/_conftest.py', 'r') as conf:
+    with open(os.path.join('tests', '_conftest.py'), 'r') as conf:
         conftest = conf.read()
 
     return conftest

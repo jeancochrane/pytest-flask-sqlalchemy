@@ -12,11 +12,11 @@ def _db():
     Session object that can access the test database. If the user hasn't defined
     that fixture, raise an error.
     '''
-    msg = ("_db fixture not defined. The pytest-flask-sqlalchemy-transactions plugin " +
-           "requires you to define a _db fixture that returns a SQLAlchemy session " +
+    msg = ("_db fixture not defined. The pytest-flask-sqlalchemy plugin " +
+           "requires you to define a _db fixture that returns a SQLAlchemy Session " +
            "with access to your test database. For more information, see the plugin " +
            "documentation: " +
-           "https://github.com/jeancochrane/pytest-flask-sqlalchemy-transactions#conftest-setup")
+           "https://github.com/jeancochrane/pytest-flask-sqlalchemy#conftest-setup")
 
     raise NotImplementedError(msg)
 
