@@ -1,6 +1,6 @@
-# pytest-flask-sqlalchemy-transactions
+# pytest-flask-sqlalchemy
 
-[![Build Status](https://travis-ci.org/jeancochrane/pytest-flask-sqlalchemy-transactions.svg?branch=master)](https://travis-ci.org/jeancochrane/pytest-flask-sqlalchemy-transactions) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/Django.svg)
+[![Build Status](https://travis-ci.org/jeancochrane/pytest-flask-sqlalchemy.svg?branch=master)](https://travis-ci.org/jeancochrane/pytest-flask-sqlalchemy) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/Django.svg)
 
 A [pytest](https://docs.pytest.org/en/latest/) plugin providing fixtures for running tests in
 transactions using [Flask-SQLAlchemy](http://flask-sqlalchemy.pocoo.org/latest/).
@@ -13,6 +13,7 @@ transactions using [Flask-SQLAlchemy](http://flask-sqlalchemy.pocoo.org/latest/)
     - [Installation](#installation)
         - [From PyPi](#from-pypi)
         - [Development version](#development-version)
+        - [Supported backends](#supported-backends)
     - [Configuration](#configuration)
         - [Conftest setup](#conftest-setup)
         - [Test configuration](#test-configuration)
@@ -125,7 +126,7 @@ def test_transaction_doesnt_persist(db_session):
 Install using pip:
 
 ```
-pip install pytest-flask-sqlalchemy-transactions
+pip install pytest-flask-sqlalchemy
 ```
 
 Once installed, pytest will detect the plugin automatically during test collection.
@@ -137,8 +138,8 @@ documentation](https://docs.pytest.org/en/latest/plugins.html?highlight=plugins)
 Clone the repo from GitHub and switch into the new directory:
 
 ```
-git clone git@github.com:jeancochrane/pytest-flask-sqlalchemy-transactions.git
-cd pytest-flask-sqlalchemy-transactions
+git clone git@github.com:jeancochrane/pytest-flask-sqlalchemy.git
+cd pytest-flask-sqlalchemy
 ```
 
 You can install using pip:
@@ -146,6 +147,20 @@ You can install using pip:
 ```
 pip install .
 ```
+
+### <a name="supported-backends">Supported backends</a>
+
+So far, pytest-flask-sqlalchemy has been most extensively tested against
+PostgreSQL 9.6. It should theoretically work with any backend that is supported
+by SQLAlchemy, but Postgres is the only backend that is currently tested by the
+test suite.
+
+Official support for SQLite and MySQL is [planned for a future
+release](https://github.com/jeancochrane/pytest-flask-sqlalchemy/issues/3).
+In the meantime, if you're using one of those backends and you run in to
+problems, we would greatly appreciate your help! [Open an
+issue](https://github.com/jeancochrane/pytest-flask-sqlalchemy/issues/new) if
+something isn't working as you expect.
 
 ## <a name="configuration"></a>Configuration
 
@@ -447,6 +462,10 @@ The code is greatly indebted to [Alex Michael](https://github.com/alexmic),
 whose blog post ["Delightful testing with pytest and
 Flask-SQLAlchemy"](http://alexmic.net/flask-sqlalchemy-pytest/) helped
 establish the basic approach on which this plugin builds.
+
+Many thanks to [Igor Ghisi](https://github.com/igortg/), who donated the PyPi
+package name. Igor had been working on a similar plugin and proposed combining
+efforts. Thanks to Igor, the plugin name is much stronger.
 
 ## <a name="copyright"></a>Copyright
 

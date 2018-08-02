@@ -53,8 +53,8 @@ def test_mocked_sessionmakers(db_testdir):
     db_testdir.makepyfile("""
         def test_mocked_sessionmakers(db_session):
             from collections import namedtuple, Counter
-            assert str(namedtuple).startswith("<transactions.fixtures._session.<locals>.FakeSessionMaker")
-            assert str(Counter).startswith("<transactions.fixtures._session.<locals>.FakeSessionMaker")
+            assert str(namedtuple).startswith("<pytest_flask_sqlalchemy.fixtures._session.<locals>.FakeSessionMaker")
+            assert str(Counter).startswith("<pytest_flask_sqlalchemy.fixtures._session.<locals>.FakeSessionMaker")
     """)
 
     result = db_testdir.runpytest()
@@ -88,7 +88,7 @@ def test_missing_db_fixture(testdir):
         else:
             DB_OPTS = sa.engine.url.make_url(DB_CONN).translate_connect_args()
 
-        pytest_plugins = ['pytest-flask-sqlalchemy-transactions']
+        pytest_plugins = ['pytest-flask-sqlalchemy']
 
 
         @pytest.fixture(scope='session')

@@ -1,9 +1,3 @@
-'''
-pytest-flask-sqlalchemy-transactions
-====================================
-
-Run tests in transactions using pytest, Flask, and SQLAlchemy.
-'''
 from setuptools import setup
 
 
@@ -12,16 +6,16 @@ def readme():
         return f.read()
 
 setup(
-    name='pytest-flask-sqlalchemy-transactions',
+    name='pytest-flask-sqlalchemy',
     author='Jean Cochrane',
     author_email='jean@jeancochrane.com',
-    url='https://github.com/jeancochrane/pytest-flask-sqlalchemy-transactions',
-    description='Run tests in transactions using pytest, Flask, and SQLalchemy.',
+    url='https://github.com/jeancochrane/pytest-flask-sqlalchemy',
+    description='A pytest plugin for preserving test isolation in Flask-SQlAlchemy using database transactions.',
     long_description=readme(),
     long_description_content_type='text/markdown',
     license='MIT',
-    version='1.0.1',
-    packages=['transactions'],
+    version='1.0.0',
+    packages=['pytest_flask_sqlalchemy'],
     install_requires=['pytest>=3.2.1',
                       'pytest-mock>=1.6.2',
                       'SQLAlchemy>=1.2.2',
@@ -42,7 +36,7 @@ setup(
     # Make the package available to pytest
     entry_points={
         'pytest11': [
-            'pytest-flask-sqlalchemy-transactions = transactions.plugin',
+            'pytest-flask-sqlalchemy = pytest_flask_sqlalchemy.plugin',
         ]
     },
 )
