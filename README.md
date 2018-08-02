@@ -148,7 +148,7 @@ You can install using pip:
 pip install .
 ```
 
-### <a name="supported-backends">Supported backends</a>
+### <a name="supported-backends"></a>Supported backends
 
 So far, pytest-flask-sqlalchemy has been most extensively tested against
 PostgreSQL 9.6. It should theoretically work with any backend that is supported
