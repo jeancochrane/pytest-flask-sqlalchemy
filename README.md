@@ -1,6 +1,6 @@
-# pytest-flask-sqlalchemy-transactions
+# pytest-flask-sqlalchemy
 
-[![Build Status](https://travis-ci.org/jeancochrane/pytest-flask-sqlalchemy-transactions.svg?branch=master)](https://travis-ci.org/jeancochrane/pytest-flask-sqlalchemy-transactions) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/Django.svg)
+[![Build Status](https://travis-ci.org/jeancochrane/pytest-flask-sqlalchemy.svg?branch=master)](https://travis-ci.org/jeancochrane/pytest-flask-sqlalchemy) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/Django.svg)
 
 A [pytest](https://docs.pytest.org/en/latest/) plugin providing fixtures for running tests in
 transactions using [Flask-SQLAlchemy](http://flask-sqlalchemy.pocoo.org/latest/).
@@ -125,7 +125,7 @@ def test_transaction_doesnt_persist(db_session):
 Install using pip:
 
 ```
-pip install pytest-flask-sqlalchemy-transactions
+pip install pytest-flask-sqlalchemy
 ```
 
 Once installed, pytest will detect the plugin automatically during test collection.
@@ -137,8 +137,8 @@ documentation](https://docs.pytest.org/en/latest/plugins.html?highlight=plugins)
 Clone the repo from GitHub and switch into the new directory:
 
 ```
-git clone git@github.com:jeancochrane/pytest-flask-sqlalchemy-transactions.git
-cd pytest-flask-sqlalchemy-transactions
+git clone git@github.com:jeancochrane/pytest-flask-sqlalchemy.git
+cd pytest-flask-sqlalchemy
 ```
 
 You can install using pip:
