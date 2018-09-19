@@ -294,3 +294,45 @@ def test_use_raw_connection_to_alter_database(db_testdir):
 
     result = db_testdir.runpytest()
     result.assert_outcomes(passed=2)
+
+
+def test_commit_works_with_deleted_dependent(db_testdir):
+    '''
+    Make sure a commit still works with a dangling reference to a
+    deleted instance.
+
+    Exercise one way to trigger the issue reported in
+    https://github.com/jeancochrane/pytest-flask-sqlalchemy/issues/5
+    '''
+    db_testdir.makepyfile("""
+        def test_delete_message(account_address, db_session):
+            account, address = account_address
+
+            # Create a new object instance using the ORM
+            account_inst = account(id=1)
+
+            db_session.add(account_inst)
+
+            # Create a dependent object instance using the ORM
+
+            address_inst = address(id=101, account_id=1)
+
+            db_session.add(address_inst)
+            db_session.commit()
+
+            # Access the address through an ORM attribute
+            assert account_inst.addresses
+
+            # Delete the address out from under account_inst and the ORM
+            db_session.delete(address_inst)
+
+            # shouldn't see an exception like
+            #   sqlalchemy.exc.InvalidRequestError:
+            #   Instance XXX has been deleted.
+            #   Use the make_transient() function to send
+            #   this object back to the transient state.
+            db_session.commit()
+    """)
+
+    result = db_testdir.runpytest()
+    result.assert_outcomes(passed=1)
