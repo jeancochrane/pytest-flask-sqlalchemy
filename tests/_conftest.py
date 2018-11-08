@@ -79,3 +79,35 @@ def person(request, _db):
         _db.drop_all()
 
     return Person
+
+
+@pytest.fixture(scope='module')
+def account_address(request, _db, person):
+    '''
+    Create tables to use for testing deletes and relationships.
+    '''
+    class Account(_db.Model):
+        __tablename__ = 'account'
+
+        id = _db.Column(_db.Integer, primary_key=True)
+        addresses = _db.relationship(
+            'Address',
+            back_populates='account',
+        )
+
+    class Address(_db.Model):
+        __tablename__ = 'address'
+
+        id = _db.Column(_db.Integer, primary_key=True)
+
+        account_id = _db.Column(_db.Integer, _db.ForeignKey('account.id'))
+        account = _db.relationship('Account', back_populates='addresses')
+
+    # Create tables
+    _db.create_all()
+
+    @request.addfinalizer
+    def drop_tables():
+        _db.drop_all()
+
+    return Account, Address

@@ -53,6 +53,10 @@ def _transaction(request, _db, mocker):
     @sa.event.listens_for(session, 'after_transaction_end')
     def restart_savepoint(session, trans):
         if trans.nested and not trans._parent.nested:
+            # ensure that state is expired the way
+            # session.commit() at the top level normally does
+            session.expire_all()
+
             session.begin_nested()
 
     # Force the connection to use nested transactions
