@@ -8,9 +8,7 @@ python:
   - '3.6'
 
 env:
-  - DB=sqlite
-  - DB=mysql
-  - DB=pgsql
+  - DB=pgsql TEST_DATABASE_URL=postgresql://postgres@localhost:5432/pytest_test
 
 addons:
   postgresql: '9.6'
@@ -25,23 +23,6 @@ install:
   - pip install -e .[tests]
 
 script: pytest
-
-jobs:
-  include:
-    - stage: Test PostgresSQL
-      env: DB=pgsql TEST_DATABASE_URL=postgresql://postgres@localhost:5432/pytest_test
-      addons:
-        postgresql: '9.6'
-
-    - stage: Test MySQL
-      env: DB=mysql TEST_DATABASE_URL=mysql+mysqldb://root@127.0.0.1/pytest_test
-      addons:
-        mysql: '5.7'
-
-    - stage: Test SQLite
-      env: DB=sqlite TEST_DATABASE_URL=sqlite:///:memory:/pytest_test
-      addons:
-        sqlite: '9.6'
 
 deploy:
   provider: pypi
