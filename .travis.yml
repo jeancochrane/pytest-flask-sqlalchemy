@@ -9,9 +9,11 @@ python:
 
 env:
   - DB=pgsql TEST_DATABASE_URL=postgresql://postgres@localhost:5432/pytest_test
+  - DB=mysql TEST_DATABASE_URL=mysql+mysqldb://root@127.0.0.1/pytest_test
 
 addons:
   postgresql: '9.6'
+  mysql: '5.7'
 
 before_script:
   - sh -c "if [ '$DB' = 'postgres' ]; then psql -c 'DROP DATABASE IF EXISTS pytest_test;' -U postgres; fi"
