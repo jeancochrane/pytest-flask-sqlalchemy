@@ -102,6 +102,9 @@ def _engine(pytestconfig, request, _transaction, mocker):
     # the Engine dialect to reflect tables)
     engine.dialect = connection.dialect
 
+    # Necessary for branching db test code
+    engine.name = connection.engine.name
+
     @contextlib.contextmanager
     def begin():
         '''

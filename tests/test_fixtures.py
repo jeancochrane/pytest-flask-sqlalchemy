@@ -212,33 +212,57 @@ def test_drop_table(db_testdir):
     '''
     Make sure that we can drop tables and verify they do not exist in the context
     of a test.
+
+    NOTE: For MySQL `DROP TABLE ...` statements "cause an implicit commit after
+    executing. The intent is to handle each such statement in its own special
+    transaction because it cannot be rolled back anyway."
+    https://dev.mysql.com/doc/refman/5.7/en/implicit-commit.html
+
+    So this test is skipped for 'mysql' engines
     '''
+
     db_testdir.makepyfile("""
         def test_drop_table(person, db_engine):
+            if db_engine.name == 'mysql':
+                return
 
             # Drop the raw table
             db_engine.execute('''
-                DROP TABLE "person"
+                DROP TABLE person
             ''')
 
             # Check if the raw table exists
-            existing_tables = db_engine.execute('''
-                SELECT relname
-                FROM pg_catalog.pg_class
-                WHERE relkind in ('r', 'm')
-                AND relname = 'person'
-            ''').first()
+            if db_engine.name == 'postgresql':
+                existing_tables = db_engine.execute('''
+                    SELECT relname
+                    FROM pg_catalog.pg_class
+                    WHERE relkind in ('r', 'm')
+                    AND relname = 'person'
+                ''').first()
+
+            else:
+                raise ValueError(
+                    'unsupported database engine type: ' + db_engine.name
+                )
 
             assert not existing_tables
 
         def test_drop_table_changes_dont_persist(person, db_engine):
+            if db_engine.name == 'mysql':
+                return
 
-            existing_tables = db_engine.execute('''
-                SELECT relname
-                FROM pg_catalog.pg_class
-                WHERE relkind in ('r', 'm')
-                AND relname = 'person'
-            ''').first()
+            if db_engine.name == 'postgresql':
+                existing_tables = db_engine.execute('''
+                    SELECT relname
+                    FROM pg_catalog.pg_class
+                    WHERE relkind in ('r', 'm')
+                    AND relname = 'person'
+                ''').first()
+
+            else:
+                raise ValueError(
+                    'unsupported database engine type: ' + db_engine.name
+                )
 
             assert existing_tables
     """)

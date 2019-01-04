@@ -6,6 +6,7 @@ import pytest
 import sqlalchemy as sa
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from pytest_mysql.factories import mysql
 from pytest_postgresql.factories import (init_postgresql_database,
                                          drop_postgresql_database)
 
@@ -17,7 +18,8 @@ except KeyError:
                    'connection string to the environmental variable ' +
                    'TEST_DATABASE_URL in order to run tests.')
 else:
-    DB_OPTS = sa.engine.url.make_url(DB_CONN).translate_connect_args()
+    DB_URL = sa.engine.url.make_url(DB_CONN)
+    DB_OPTS = DB_URL.translate_connect_args()
 
 pytest_plugins = ['pytest-flask-sqlalchemy']
 
@@ -27,16 +29,28 @@ def database(request):
     '''
     Create a Postgres database for the tests, and drop it when the tests are done.
     '''
-    pg_host = DB_OPTS.get("host")
-    pg_port = DB_OPTS.get("port")
-    pg_user = DB_OPTS.get("username")
-    pg_db = DB_OPTS["database"]
+    db_host = DB_OPTS.get("host")
+    db_port = DB_OPTS.get("port")
+    db_user = DB_OPTS.get("username")
+    db_name = DB_OPTS["database"]
 
-    init_postgresql_database(pg_user, pg_host, pg_port, pg_db)
+    BACKEND = DB_URL.get_backend_name()
 
-    @request.addfinalizer
-    def drop_database():
-        drop_postgresql_database(pg_user, pg_host, pg_port, pg_db, 9.6)
+    if BACKEND == 'mysql':
+        mysql('dummy_mysql_fixture', db=db_name)
+
+    elif BACKEND == 'postgresql':
+        init_postgresql_database(db_user, db_host, db_port, db_name)
+
+        @request.addfinalizer
+        def drop_database():
+            drop_postgresql_database(db_user, db_host, db_port, db_name, 9.6)
+
+    else:
+        raise ValueError(
+            'Unsupported database type ({}) requested in '
+            'TEST_DATABASE_URL: {}'.format(BACKEND, DB_URL)
+        )
 
 
 @pytest.fixture(scope='session')
@@ -47,6 +61,7 @@ def app(database):
     app = Flask(__name__)
 
     app.config['SQLALCHEMY_DATABASE_URI'] = DB_CONN
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
     return app
 
