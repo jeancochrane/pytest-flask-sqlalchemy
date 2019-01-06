@@ -6,7 +6,7 @@ import pytest
 import sqlalchemy as sa
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from pytest_mysql.factories import mysql
+import MySQLdb
 from pytest_postgresql.factories import (init_postgresql_database,
                                          drop_postgresql_database)
 
@@ -24,6 +24,26 @@ else:
 pytest_plugins = ['pytest-flask-sqlalchemy']
 
 
+def _init_mysql_database(request, db_user, db_host, db_name, db_pass=''):
+
+    mysql_conn = MySQLdb.connect(
+        host=db_host,
+        user=db_user,
+        passwd=db_pass
+    )
+
+    mysql_conn.query("CREATE DATABASE IF NOT EXISTS {name}".format(name=db_name))
+
+    mysql_conn.query("USE {name}".format(name=db_name))
+
+    @request.addfinalizer
+    def drop_database():
+        mysql_conn.query("DROP DATABASE IF EXISTS {name}".format(name=db_name))
+        mysql_conn.close()
+
+    return mysql_conn
+
+
 @pytest.fixture(scope='session')
 def database(request):
     '''
@@ -37,7 +57,7 @@ def database(request):
     BACKEND = DB_URL.get_backend_name()
 
     if BACKEND == 'mysql':
-        mysql('dummy_mysql_fixture', db=db_name)
+        _init_mysql_database(request, db_user, db_host, db_name)
 
     elif BACKEND == 'postgresql':
         init_postgresql_database(db_user, db_host, db_port, db_name)
@@ -61,7 +81,6 @@ def app(database):
     app = Flask(__name__)
 
     app.config['SQLALCHEMY_DATABASE_URI'] = DB_CONN
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
     return app
 

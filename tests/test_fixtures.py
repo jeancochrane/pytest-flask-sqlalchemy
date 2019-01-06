@@ -40,7 +40,6 @@ def test_use_db_session_to_alter_database(db_testdir):
             assert not db_session.query(person).first()
     """)
 
-    # Run tests
     result = db_testdir.runpytest()
     result.assert_outcomes(passed=2)
 

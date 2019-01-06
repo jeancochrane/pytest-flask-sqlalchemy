@@ -20,7 +20,7 @@ setup(
                       'pytest-mock>=1.6.2',
                       'SQLAlchemy>=1.2.2',
                       'Flask-SQLAlchemy>=2.3'],
-    extras_require={'tests': ['pytest-postgresql', 'pytest-mysql']},
+    extras_require={'tests': ['pytest-postgresql', 'mysqlclient']},
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Plugins',
