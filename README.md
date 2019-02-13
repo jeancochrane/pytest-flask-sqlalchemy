@@ -78,7 +78,7 @@ that any database changes made will be rolled back at the end of the test:
 ```ini
 # In setup.cfg
 
-[pytest]
+[tool:pytest]
 mocked-sessions=database.db.session
 mocked-engines=database.engine
 ```
