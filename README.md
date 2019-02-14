@@ -20,9 +20,11 @@ transactions using [Flask-SQLAlchemy](http://flask-sqlalchemy.pocoo.org/latest/)
             - [`mocked-engines`](#mocked-engines)
             - [`mocked-sessions`](#mocked-sessions)
             - [`mocked-sessionmakers`](#mocked-sessionmakers)
+        - [Writing transactional tests](#writing-transactional-tests)
     - [Fixtures](#fixtures)
         - [`db_session`](#db_session)
         - [`db_engine`](#db_engine)
+    - [Enabling transactions without fixtures](#enabling-transactions-without-fixtures)
 - [**Development**](#development)
     - [Running the tests](#running-the-tests)
     - [Acknowledgements](#acknowledgements)
@@ -277,7 +279,7 @@ engine = sqlalchemy.create_engine(DATABASE_URI)
 ```ini
 # In setup.cfg
 
-[pytest]
+[tool:pytest]
 mocked-engines=database.engine
 ```
 
@@ -286,7 +288,7 @@ To patch multiple objects at once, separate the paths with a whitespace:
 ```ini
 # In setup.cfg
 
-[pytest]
+[tool:pytest]
 mocked-engines=database.engine database.second_engine
 ```
 
@@ -312,7 +314,7 @@ db = SQLAlchemy()
 ```ini
 # In setup.cfg
 
-[pytest]
+[tool:pytest]
 mocked-sessions=database.db.session
 ```
 
@@ -321,7 +323,7 @@ To patch multiple objects at once, separate the paths with a whitespace:
 ```ini
 # In setup.cfg
 
-[pytest]
+[tool:pytest]
 mocked-sessions=database.db.session database.second_db.session
 ```
 
@@ -347,16 +349,47 @@ WorkerSessionmaker = sessionmaker()
 ```
 
 ```ini
-[pytest]
+[tool:pytest]
 mocked-sessionmakers=database.WorkerSessionmaker
 ```
 
 To patch multiple objects at once, separate the paths with a whitespace.
 
 ```ini
-[pytest]
+[tool:pytest]
 mocked-sessionmakers=database.WorkerSessionmaker database.SecondWorkerSessionmaker
 ```
+
+### <a name="writing-transactional-tests"></a>Writing transactional tests
+
+Once you have your [conftest file set up](#conftest-setup) and you've [overrided the
+necessary connectables in your test configuration](#test-configuration), you're ready
+to write some transactional tests. Simply import one of the module's [transactional
+fixtures](#fixtures) in your test signature, and the test will be wrapped in a transaction.
+
+Note that by default, **tests are only wrapped in transactions if they import one of
+the [transactional fixtures](#fixtures) provided by this module.** Tests that do not
+import the fixture will interact with your database without opening a transaction:
+
+```python
+# This test will be wrapped in a transaction.
+def transactional_test(db_session):
+    ...
+    
+# This test **will not** be wrapped in a transaction, since it does not import a
+# transactional fixture.
+def non_transactional_test():
+    ...
+```
+
+The fixtures provide a way for you to control which tests require transactions and
+which don't. This is often useful, since avoiding transaction setup can speed up
+tests that don't interact with your database.
+
+For more information about the transactional fixtures provided by this module, read on
+to the [fixtures section](#fixtures). For guidance on how to automatically enable
+transactions without having to specify fixtures, see the section on [enabling transactions
+without fixtures](#enabling-transactions-without-fixtures).
 
 ## <a name="fixtures"></a>Fixtures
 
@@ -426,6 +459,27 @@ def test_transaction_doesnt_persist(db_engine):
     assert row_name != 'testing' 
 ```
 
+## <a name="enabling-transactions-without-fixtures"></a>Enabling transactions without fixtures
+
+If you know you want to make all of your tests transactional, it can be annoying to have
+to specify one of the [fixtures](#fixtures) in every test signature.
+
+The best way to automatically enable transactions without having to include an extra fixture
+in every test is to wire up an
+[autouse fixture](https://docs.pytest.org/en/latest/fixture.html#autouse-fixtures-xunit-setup-on-steroids)
+for your test suite. This can be as simple as:
+
+```python
+# Automatically enable transactions for all tests, without importing any extra fixtures.
+@pytest.fixture(autouse=True)
+def enable_transactional_tests(db_session):
+    pass
+```
+
+In this configuration, the `enable_transactional_tests` fixture will be automatically used in
+all tests, meaning that `db_session` will also be used. This way, all tests will be wrapped
+in transactions without having to explicitly require either `db_session` or `enable_transactional_tests`.
+
 # <a name="development"></a>Development
 
 ## <a name="running-the-tests"></a>Running the tests
@@ -469,6 +523,6 @@ efforts. Thanks to Igor, the plugin name is much stronger.
 
 ## <a name="copyright"></a>Copyright
 
-Copyright (c) 2018 Jean Cochrane and DataMade. Released under the MIT License.
+Copyright (c) 2019 Jean Cochrane and DataMade. Released under the MIT License.
 
 Third-party copyright in this distribution is noted where applicable.
