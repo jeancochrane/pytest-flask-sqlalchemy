@@ -19,7 +19,8 @@ setup(
     install_requires=['pytest>=3.2.1',
                       'pytest-mock>=1.6.2',
                       'SQLAlchemy>=1.2.2',
-                      'Flask-SQLAlchemy>=2.3'],
+                      'Flask-SQLAlchemy>=2.3',
+                      'packaging>=14.1'],
     extras_require={'tests': ['pytest-postgresql']},
     classifiers=[
         'Development Status :: 4 - Beta',
