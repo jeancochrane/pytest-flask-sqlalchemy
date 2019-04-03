@@ -5,12 +5,18 @@ branches:
 
 language: python
 python:
-  - '3.4'
-  - '3.5'
   - '3.6'
+  - '3.5'
+  - '3.4'
 
 env:
-  - TEST_DATABASE_URL=postgresql://postgres@localhost:5432/pytest_test
+  global:
+    - TEST_DATABASE_URL=postgresql://postgres@localhost:5432/pytest_test
+
+matrix:
+  include:
+    - env: SA_VERSION=1.3.*
+    - env: SA_VERSION=1.2.*
 
 addons:
   postgresql: '9.6'
@@ -18,6 +24,7 @@ addons:
 install:
   - pip install --upgrade pip
   - pip install -e .[tests]
+  - if ![ -z "$SA_VERSION" ]; then pip install --upgrade sqlalchemy=="${SA_VERSION}"; fi
 
 script: pytest
 
