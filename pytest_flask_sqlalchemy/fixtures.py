@@ -3,6 +3,7 @@ import contextlib
 
 import pytest
 import sqlalchemy as sa
+from packaging import version
 
 
 @pytest.fixture(scope='module')
@@ -95,7 +96,14 @@ def _engine(pytestconfig, request, _transaction, mocker):
     engine = mocker.MagicMock(spec=sa.engine.Engine)
 
     engine.connect.return_value = connection
-    engine.contextual_connect.return_value = connection
+
+    # Threadlocal engine strategies were deprecated in SQLAlchemy 1.3, which
+    # resulted in contextual_connect becoming a private method. See:
+    # https://docs.sqlalchemy.org/en/latest/changelog/migration_13.html
+    if version.parse(sa.__version__) < version.parse('1.3'):
+        engine.contextual_connect.return_value = connection
+    else:
+        engine._contextual_connect.return_value = connection
 
     # References to `Engine.dialect` should redirect to the Connection (this
     # is primarily useful for the `autoload` flag in SQLAlchemy, which references
