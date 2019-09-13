@@ -21,7 +21,7 @@ setup(
                       'SQLAlchemy>=1.2.2',
                       'Flask-SQLAlchemy>=2.3',
                       'packaging>=14.1'],
-    extras_require={'tests': ['pytest-postgresql']},
+    extras_require={'tests': ['pytest-postgresql<2.0', 'psycopg2-binary']},
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Plugins',
