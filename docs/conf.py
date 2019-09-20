@@ -12,19 +12,19 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../..'))
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'PyTest-Flask-SQLAlchemy'
-copyright = '2019, Jean Cochrane'
+copyright = '2019, Jean Cochrane and DataMade. Released under the MIT License.'
 author = 'Jean Cochrane'
 
 # The short X.Y version
-version = ''
+version = '1.0'
 # The full version, including alpha/beta/rc tags
 release = '1.0.2'
 
@@ -39,15 +39,21 @@ release = '1.0.2'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    # Cross Referencing
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.autosectionlabel',  # Explicit Referencing e.g. DOCUMENT:SECTION
+    # Code Documentation
+    'sphinx.ext.viewcode',
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
-    'sphinx.ext.intersphinx',
+    # Project Management
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.ifconfig',
-    'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
+    # Typography
+    'sphinx.ext.mathjax',
+    # Document Control
+    'sphinx.ext.ifconfig',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -77,6 +83,8 @@ exclude_patterns = []
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
+# -- Auto-Section Label Configuration ----------------------------------------
+autosectionlabel_prefix_document = True
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -89,7 +97,13 @@ html_theme = 'alabaster'
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+html_theme_options = {
+    # 'logo': 'logo.png',
+    'github_user': 'jeancochrane',
+    'github_repo': 'pytest-flask-sqlalchemy',
+    'github_banner': 'true',
+    'travis_button': 'true',
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
