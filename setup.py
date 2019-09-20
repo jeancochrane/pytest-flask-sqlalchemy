@@ -1,12 +1,15 @@
 from setuptools import setup
 
+project = 'pytest-flask-sqlalchemy'
+release = '1.0.2'
+version = '.'.join(release.split('.')[:-1])
 
 def readme():
     with open('README.md') as f:
         return f.read()
 
 setup(
-    name='pytest-flask-sqlalchemy',
+    name=project,
     author='Jean Cochrane',
     author_email='jean@jeancochrane.com',
     url='https://github.com/jeancochrane/pytest-flask-sqlalchemy',
@@ -14,7 +17,7 @@ setup(
     long_description=readme(),
     long_description_content_type='text/markdown',
     license='MIT',
-    version='1.0.2',
+    version= release,
     packages=['pytest_flask_sqlalchemy'],
     install_requires=['pytest>=3.2.1',
                       'pytest-mock>=1.6.2',
@@ -40,4 +43,11 @@ setup(
             'pytest-flask-sqlalchemy = pytest_flask_sqlalchemy.plugin',
         ]
     },
+
+    # Sphinx 
+    command_options={'build_sphinx': { # Pull this info from a PROJECT.__meta__ module
+        'project': ('setup.py', project),
+        'version': ('setup.py', version),
+        'release': ('setup.py', release),
+        'source_dir': ('setup.py', 'docs')}},
 )
