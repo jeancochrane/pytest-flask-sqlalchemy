@@ -28,8 +28,11 @@ def _transaction(request, _db, mocker):
     Create a transactional context for tests to run in.
     '''
     # Start a transaction
-    connection = _db.engine.connect()
-    transaction = connection.begin()
+    try:
+        connection = _db.engine.connect()
+        transaction = connection.begin()
+    except:
+        return
 
     # Bind a session to the transaction. The empty `binds` dict is necessary
     # when specifying a `bind` option, or else Flask-SQLAlchemy won't scope
@@ -89,6 +92,8 @@ def _engine(pytestconfig, request, _transaction, mocker):
     '''
     Mock out direct access to the semi-global Engine object.
     '''
+    if not _transaction:
+        return
     connection, _, session = _transaction
 
     # Make sure that any attempts to call `connect()` simply return a
@@ -166,6 +171,8 @@ def _session(pytestconfig, _transaction, mocker):
     Mock out Session objects (a common way of interacting with the database using
     the SQLAlchemy ORM) using a transactional context.
     '''
+    if not _transaction:
+        return
     _, _, session = _transaction
 
     # Whenever the code tries to access a Flask session, use the Session object
