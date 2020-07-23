@@ -33,7 +33,7 @@ def database(request):
     pg_pass = DB_OPTS.get("password")
     pg_db = DB_OPTS["database"]
 
-    init_postgresql_database(pg_user, pg_host, pg_port, pg_db, pg_pass)
+    init_postgresql_database(pg_user, pg_host, pg_port, pg_db, None, pg_pass)
 
     @request.addfinalizer
     def drop_database():
