@@ -133,3 +133,43 @@ def test_missing_db_fixture(testdir):
     result.stdout.fnmatch_lines([
         '*NotImplementedError: _db fixture not defined*'
     ])
+
+
+def test_connection_failure_transaction_empty(testdir):
+    '''
+    Test that when invalid connection configuration is supplied that test
+    cases are invoked with an empty transaction object
+    '''
+    conftest = """
+        import pytest
+        from flask import Flask
+        from flask_sqlalchemy import SQLAlchemy
+
+        pytest_plugins = ['pytest-flask-sqlalchemy']
+
+        @pytest.fixture(scope='session')
+        def app():
+            '''
+            Create a Flask app context for the tests.
+            '''
+            app = Flask(__name__)
+
+            app.config['SQLALCHEMY_DATABASE_URI'] = "test://test.invalid/test"
+
+            return app
+
+        @pytest.fixture(scope='session')
+        def _db(app):
+            return SQLAlchemy(app)
+    """
+
+    testdir.makeconftest(conftest)
+
+    # Define a test that expects an empty transaction due to connection failure
+    testdir.makepyfile("""
+        def test_transaction_empty(_transaction):
+            assert _transaction is None
+    """)
+
+    result = testdir.runpytest()
+    result.assert_outcomes(passed=1)
