@@ -37,7 +37,7 @@ def database(request):
 
     @request.addfinalizer
     def drop_database():
-        drop_postgresql_database(pg_user, pg_host, pg_port, pg_db, 9.6)
+        drop_postgresql_database(pg_user, pg_host, pg_port, pg_db, 9.6, pg_pass)
 
 
 @pytest.fixture(scope='session')
