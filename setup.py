@@ -16,7 +16,7 @@ setup(
     license='MIT',
     version='1.0.2',
     packages=['pytest_flask_sqlalchemy'],
-    install_requires=['pytest>=3.2.1',
+    install_requires=['pytest>=6.0.0',
                       'pytest-mock>=1.6.2',
                       'SQLAlchemy>=1.2.2',
                       'Flask-SQLAlchemy>=2.3',
