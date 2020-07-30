@@ -72,12 +72,12 @@ def _transaction(request, _db, mocker):
 
     @request.addfinalizer
     def teardown_transaction():
-        # Delete the session
-        session.remove()
-
         # Rollback the transaction and return the connection to the pool
         transaction.rollback()
         connection.force_close()
+
+        # Delete the session
+        session.remove()
 
     return connection, transaction, session
 
