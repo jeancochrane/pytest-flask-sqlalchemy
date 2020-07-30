@@ -40,10 +40,8 @@ def _transaction(request, _db, mocker):
     # Make sure the session, connection, and transaction can't be closed by accident in
     # the codebase
     connection.force_close = connection.close
-    transaction.force_rollback = transaction.rollback
 
     connection.close = lambda: None
-    transaction.rollback = lambda: None
     session.close = lambda: None
 
     # Begin a nested transaction (any new transactions created in the codebase
@@ -78,7 +76,7 @@ def _transaction(request, _db, mocker):
         session.remove()
 
         # Rollback the transaction and return the connection to the pool
-        transaction.force_rollback()
+        transaction.rollback()
         connection.force_close()
 
     return connection, transaction, session
