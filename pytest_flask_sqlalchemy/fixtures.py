@@ -97,10 +97,15 @@ def _engine(pytestconfig, request, _transaction, mocker):
 
     engine.connect.return_value = connection
 
-    # Threadlocal engine strategies were deprecated in SQLAlchemy 1.3, which
-    # resulted in contextual_connect becoming a private method. See:
+    # Threadlocal engine strategies were deprecated in SQLAlchemy 1.3 and
+    # fully removed in 1.4.  The deprecation resulted in contextual_connect
+    # becoming a private method. See:
     # https://docs.sqlalchemy.org/en/latest/changelog/migration_13.html
-    if version.parse(sa.__version__) < version.parse('1.3'):
+    sa_version = version.parse(sa.__version__)
+    sa_version = version.parse(sa_version.base_version)
+    if sa_version >= version.parse('1.4'):
+        pass
+    elif sa_version < version.parse('1.3'):
         engine.contextual_connect.return_value = connection
     else:
         engine._contextual_connect.return_value = connection
