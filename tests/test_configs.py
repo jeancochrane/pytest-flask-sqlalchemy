@@ -130,7 +130,7 @@ def test_missing_db_fixture(testdir):
     """)
 
     result = testdir.runpytest()
-    result.assert_outcomes(error=1)
+    result.assert_outcomes(errors=1)
     result.stdout.fnmatch_lines([
         '*NotImplementedError: _db fixture not defined*'
     ])
