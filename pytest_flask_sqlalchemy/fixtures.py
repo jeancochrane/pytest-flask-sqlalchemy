@@ -30,9 +30,10 @@ def _transaction(request, _db, mocker):
     # Start a transaction
     try:
         connection = _db.engine.connect()
-        transaction = connection.begin()
-    except:
+    except sa.exc.DBAPIError:
         return
+
+    transaction = connection.begin()
 
     # Bind a session to the transaction. The empty `binds` dict is necessary
     # when specifying a `bind` option, or else Flask-SQLAlchemy won't scope
