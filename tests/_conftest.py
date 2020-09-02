@@ -30,13 +30,14 @@ def database(request):
     pg_host = DB_OPTS.get("host")
     pg_port = DB_OPTS.get("port")
     pg_user = DB_OPTS.get("username")
+    pg_pass = DB_OPTS.get("password")
     pg_db = DB_OPTS["database"]
 
-    init_postgresql_database(pg_user, pg_host, pg_port, pg_db)
+    init_postgresql_database(pg_user, pg_host, pg_port, pg_db, pg_pass)
 
     @request.addfinalizer
     def drop_database():
-        drop_postgresql_database(pg_user, pg_host, pg_port, pg_db, 9.6)
+        drop_postgresql_database(pg_user, pg_host, pg_port, pg_db, 9.6, pg_pass)
 
 
 @pytest.fixture(scope='session')
