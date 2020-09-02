@@ -155,7 +155,7 @@ def test_connection_failure_transaction_empty(testdir):
             '''
             app = Flask(__name__)
 
-            app.config['SQLALCHEMY_DATABASE_URI'] = "test://test.invalid/test"
+            app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://test.invalid/test"
 
             return app
 
