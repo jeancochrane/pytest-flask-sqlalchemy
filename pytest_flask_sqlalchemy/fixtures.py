@@ -30,10 +30,10 @@ def _transaction(request, _db, mocker):
     # Start a transaction
     try:
         connection = _db.engine.connect()
-    # SQLAlchemy's DBAPIError is the most common shared base exception class
-    # discovered while testing failures due to connection-refused (typically
-    # due to a server not present) for three common Python PostgreSQL drivers,
-    # namely psycopg2, pg8000 and py-postgresql
+    # SQLAlchemy's 'DBAPIError' is the most common shared base exception class
+    # raised when a connection to the database server is refused (typically
+    # when the server not present/running) for at least three common Python
+    # PostgreSQL drivers, namely psycopg2, pg8000 and py-postgresql
     except sa.exc.DBAPIError:
         return
 
