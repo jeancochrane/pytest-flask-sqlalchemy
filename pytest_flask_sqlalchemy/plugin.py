@@ -23,6 +23,12 @@ def pytest_addoption(parser):
                   type='args',
                   help=base_msg.format(obj='SQLAlchemy Sessionmaker'))
 
+    parser.addini('mocked-sessions-handle-connect-exceptions',
+                  type='bool',
+                  default=False,
+                  help='Handle connection-time exceptions; engine and ' +
+                       'session objects will be empty on failure')
+
 
 def pytest_configure(config):
     '''
@@ -31,3 +37,4 @@ def pytest_configure(config):
     config._mocked_engines = config.getini('mocked-engines')
     config._mocked_sessions = config.getini('mocked-sessions')
     config._mocked_sessionmakers = config.getini('mocked-sessionmakers')
+    config._handle_connect_failures = config.getini('mocked-sessions-handle-connect-exceptions')

@@ -23,19 +23,23 @@ def _db():
 
 
 @pytest.fixture(scope='function')
-def _transaction(request, _db, mocker):
+def _transaction(pytestconfig, request, _db, mocker):
     '''
     Create a transactional context for tests to run in.
     '''
     # Start a transaction
     try:
         connection = _db.engine.connect()
-    # SQLAlchemy's 'DBAPIError' is the most common shared base exception class
-    # raised when a connection to the database server is refused (typically
-    # when the server not present/running) for at least three common Python
-    # PostgreSQL drivers, namely psycopg2, pg8000 and py-postgresql
+    # Determine how to handle connection-time failures: the default behaviour
+    # is that the exceptions bubble up to the caller, but this may be changed
+    # via pytest configuration to allow method calls to return successfuly
+    # (albeit with empty results). This can be useful to allow test-level
+    # logic (including decorators) to inspect whether connectivity has been
+    # established
     except sa.exc.DBAPIError:
-        return
+        if pytestconfig._handle_connect_failures:
+            return
+        raise
 
     transaction = connection.begin()
 

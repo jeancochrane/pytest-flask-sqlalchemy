@@ -136,10 +136,11 @@ def test_missing_db_fixture(testdir):
     ])
 
 
-def test_connection_failure_transaction_empty(testdir):
+def test_connection_failure_transaction_empty(db_testdir):
     '''
-    Test that when invalid connection configuration is supplied that test
-    cases are invoked with an empty transaction object
+    Test that when a connection cannot be established to the database, and
+    handling of connection-time exceptions is enabled, that test cases are
+    invoked with an empty transaction object
     '''
     conftest = """
         import pytest
@@ -164,13 +165,19 @@ def test_connection_failure_transaction_empty(testdir):
             return SQLAlchemy(app)
     """
 
-    testdir.makeconftest(conftest)
+    db_testdir.makeconftest(conftest)
 
-    # Define a test that expects an empty transaction due to connection failure
-    testdir.makepyfile("""
+    db_testdir.makeini("""
+        [pytest]
+        mocked-sessions-handle-connect-exceptions=true
+    """)
+
+    # Define a test that expects an empty transaction following a handled
+    # connection failure
+    db_testdir.makepyfile("""
         def test_transaction_empty(_transaction):
             assert _transaction is None
     """)
 
-    result = testdir.runpytest()
+    result = db_testdir.runpytest()
     result.assert_outcomes(passed=1)
