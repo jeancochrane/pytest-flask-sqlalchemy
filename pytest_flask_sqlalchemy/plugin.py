@@ -27,7 +27,8 @@ def pytest_addoption(parser):
                   type='bool',
                   default=False,
                   help='Handle connection-time exceptions; engine and ' +
-                       'session objects will be empty on failure')
+                       'session fixtures will contain empty (None) values ' +
+                       'if SQLAlchemy could not establish a db connection')
 
 
 def pytest_configure(config):
