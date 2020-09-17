@@ -56,7 +56,7 @@ def _transaction(request, _db, mocker):
         if trans.nested and not trans._parent.nested:
             # ensure that state is expired the way
             # session.commit() at the top level normally does
-            session.expire_all()
+            session.expunge_all()
 
             session.begin_nested()
 
