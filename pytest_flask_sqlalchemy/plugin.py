@@ -31,4 +31,4 @@ def pytest_configure(config):
     config._mocked_engines = config.getini('mocked-engines')
     config._mocked_sessions = config.getini('mocked-sessions')
     config._mocked_sessionmakers = config.getini('mocked-sessionmakers')
-    config.addinivalue_line('markers', 'requires_sqlalchemy_connection')
+    config.addinivalue_line('markers', 'requires_sqlalchemy_connection: only run this test if a database connection can be established by pytest-flask-sqlalchemy')
