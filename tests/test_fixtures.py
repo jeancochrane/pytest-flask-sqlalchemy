@@ -336,3 +336,56 @@ def test_commit_works_with_deleted_dependent(db_testdir):
 
     result = db_testdir.runpytest()
     result.assert_outcomes(passed=1)
+
+
+def test_conditional_connectivity(testdir):
+    '''
+    Confirm that tests which encounter connectivity failures are skipped
+    at pytest runtime when the appropriate custom marker is present.
+    '''
+    conftest = """
+        import pytest
+        from flask import Flask
+        from flask_sqlalchemy import SQLAlchemy
+
+        pytest_plugins = ['pytest-flask-sqlalchemy']
+
+        @pytest.fixture(scope='session')
+        def app():
+            '''
+            Create a Flask app context for the tests.
+            '''
+            app = Flask(__name__)
+
+            # Provide a bogus connection-string
+            app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://test.invalid/test'
+
+            return app
+
+        @pytest.fixture(scope='session')
+        def _db(app):
+            '''
+            Provide the transactional fixtures with access to the database via a Flask-SQLAlchemy
+            database connection.
+            '''
+            db = SQLAlchemy(app=app)
+            return db
+    """
+
+    testdir.makeconftest(conftest)
+
+    # Run two tests using the same database session:
+    # One with the custom marker applied, and one without
+    testdir.makepyfile("""
+        import pytest
+
+        @pytest.mark.requires_sqlalchemy_connection
+        def test_skip(db_session):
+            assert False
+
+        def test_fail(db_session):
+            assert False
+    """)
+
+    result = testdir.runpytest()
+    result.assert_outcomes(errors=1, skipped=1)
