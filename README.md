@@ -396,16 +396,7 @@ without fixtures](#enabling-transactions-without-fixtures).
 
 This plugin provides a [`pytest` custom marker](https://docs.pytest.org/en/latest/writing_plugins.html#registering-custom-markers) that allows you to selectively skip unit tests if database connectivity cannot be established when the test is run.
 
-To use the marker, you must configure the plugin to catch database connection exceptions:
-
-```ini
-# In setup.cfg
-
-[tool:pytest]
-mocked-sessions-propagate-connect-exceptions=false
-```
-
-And then add the corresponding `pytest.mark` decorator to each connectivity-conditional test:
+To use the marker, add the corresponding `pytest.mark` decorator to each connectivity-conditional test:
 
 ```python
 @pytest.mark.requires_sqlalchemy_connection

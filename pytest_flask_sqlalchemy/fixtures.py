@@ -27,8 +27,20 @@ def _transaction(request, _db, mocker):
     '''
     Create a transactional context for tests to run in.
     '''
+    try:
+        connection = _db.engine.connect()
+    # Determine how to handle connection-time failures: the default behaviour
+    # is that the exceptions bubble up to the caller, but this may be disabled
+    # via pytest configuration to allow method calls to return successfuly
+    # (albeit with empty results). This can be useful to allow test-level
+    # logic (including decorators) to inspect whether connectivity has been
+    # established
+    except sa.exc.DBAPIError:
+        if request.node.get_closest_marker('requires_sqlalchemy_connection'):
+            pytest.skip()
+        raise
+
     # Start a transaction
-    connection = _db.engine.connect()
     transaction = connection.begin()
 
     # Bind a session to the transaction. The empty `binds` dict is necessary
@@ -214,15 +226,3 @@ def db_engine(_engine, _session, _transaction):
     SQLAlchemy Engine API.
     '''
     return _engine
-
-
-@pytest.fixture(autouse=True)
-def _requires_sqlalchemy_connection(request, _transaction):
-    '''
-    This auto-use fixture allows users of the plugin to decorate test methods
-    with a marker indicating that they should be skipped by pytest when a
-    database connection cannot be established.
-    '''
-    if request.node.get_closest_marker('requires_sqlalchemy_connection'):
-        if not _transaction:
-            pytest.skip()

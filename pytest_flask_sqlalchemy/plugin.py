@@ -1,4 +1,4 @@
-from .fixtures import _db, _transaction, _engine, _session, _requires_sqlalchemy_connection, db_session, db_engine
+from .fixtures import _db, _transaction, _engine, _session, db_session, db_engine
 
 
 def pytest_addoption(parser):
