@@ -27,20 +27,20 @@ def _transaction(pytestconfig, request, _db, mocker):
     '''
     Create a transactional context for tests to run in.
     '''
-    # Start a transaction
     try:
         connection = _db.engine.connect()
     # Determine how to handle connection-time failures: the default behaviour
-    # is that the exceptions bubble up to the caller, but this may be changed
+    # is that the exceptions bubble up to the caller, but this may be disabled
     # via pytest configuration to allow method calls to return successfuly
     # (albeit with empty results). This can be useful to allow test-level
     # logic (including decorators) to inspect whether connectivity has been
     # established
     except sa.exc.DBAPIError:
-        if pytestconfig._handle_connect_failures:
-            return
-        raise
+        if pytestconfig._propagate_connect_exceptions:
+            raise
+        return
 
+    # Start a transaction
     transaction = connection.begin()
 
     # Bind a session to the transaction. The empty `binds` dict is necessary

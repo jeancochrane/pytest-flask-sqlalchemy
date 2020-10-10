@@ -139,7 +139,7 @@ def test_missing_db_fixture(testdir):
 def test_connection_failure_transaction_empty(db_testdir):
     '''
     Test that when a connection cannot be established to the database, and
-    handling of connection-time exceptions is enabled, that test cases are
+    propagation of connection exceptions is disabled, that test cases are
     invoked with an empty transaction object
     '''
     conftest = """
@@ -169,7 +169,7 @@ def test_connection_failure_transaction_empty(db_testdir):
 
     db_testdir.makeini("""
         [pytest]
-        mocked-sessions-handle-connect-exceptions=true
+        mocked-sessions-propagate-connect-exceptions=false
     """)
 
     # Define a test that expects an empty transaction following a handled
