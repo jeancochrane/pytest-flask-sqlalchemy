@@ -21,6 +21,7 @@ transactions using [Flask-SQLAlchemy](http://flask-sqlalchemy.pocoo.org/latest/)
             - [`mocked-sessions`](#mocked-sessions)
             - [`mocked-sessionmakers`](#mocked-sessionmakers)
         - [Writing transactional tests](#writing-transactional-tests)
+        - [Connectivity-conditional tests](#connectivity-conditional-tests)
     - [Fixtures](#fixtures)
         - [`db_session`](#db_session)
         - [`db_engine`](#db_engine)
@@ -390,6 +391,29 @@ For more information about the transactional fixtures provided by this module, r
 to the [fixtures section](#fixtures). For guidance on how to automatically enable
 transactions without having to specify fixtures, see the section on [enabling transactions
 without fixtures](#enabling-transactions-without-fixtures).
+
+### <a name="connectivity-conditional-tests"></a>Connectivity-conditional tests
+
+This plugin provides a [custom marker](https://docs.pytest.org/en/latest/writing_plugins.html#registering-custom-markers) that allows you to selectively skip unit tests if database connectivity cannot be established.
+
+To use the marker, you must configure the plugin to catch database connection exceptions:
+
+```ini
+# In setup.cfg
+
+[tool:pytest]
+mocked-sessions-propagate-connect-exceptions=false
+```
+
+And then add the corresponding `pytest.mark` decorator to each connectivity-conditional test:
+
+```python
+@pytest.mark.requires_sqlalchemy_connection
+def test_crud_operations(db_session):
+    # this test case will only run if a database connection can be established,
+    # otherwise it will appear as a 'skipped' test according to the pytest report
+    assert False
+```
 
 ## <a name="fixtures"></a>Fixtures
 
