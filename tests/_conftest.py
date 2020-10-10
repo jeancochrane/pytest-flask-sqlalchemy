@@ -6,8 +6,7 @@ import pytest
 import sqlalchemy as sa
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from pytest_postgresql.factories import (init_postgresql_database,
-                                         drop_postgresql_database)
+from pytest_postgresql.factories import DatabaseJanitor
 
 # Retrieve a database connection string from the shell environment
 try:
@@ -33,11 +32,19 @@ def database(request):
     pg_pass = DB_OPTS.get("password")
     pg_db = DB_OPTS["database"]
 
-    init_postgresql_database(pg_user, pg_host, pg_port, pg_db, pg_pass)
+    janitor = DatabaseJanitor(
+        user=pg_user,
+        host=pg_host,
+        port=pg_port,
+        db_name=pg_db,
+        version='9.6',
+        password=pg_pass
+    )
+    janitor.init()
 
     @request.addfinalizer
     def drop_database():
-        drop_postgresql_database(pg_user, pg_host, pg_port, pg_db, 9.6, pg_pass)
+        janitor.drop()
 
 
 @pytest.fixture(scope='session')
