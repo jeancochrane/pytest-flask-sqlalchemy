@@ -30,11 +30,9 @@ def _transaction(request, _db, mocker):
     try:
         connection = _db.engine.connect()
     # Determine how to handle connection-time failures: the default behaviour
-    # is that the exceptions bubble up to the caller, but this may be disabled
-    # via pytest configuration to allow method calls to return successfuly
-    # (albeit with empty results). This can be useful to allow test-level
-    # logic (including decorators) to inspect whether connectivity has been
-    # established
+    # is that the exceptions bubble up to the caller.  However, if the test
+    # has a marker to indicate that it is dependent on database connectivity,
+    # then issue a pytest 'skip' result for the test.
     except sa.exc.DBAPIError:
         if request.node.get_closest_marker('requires_sqlalchemy_connection'):
             pytest.skip()
