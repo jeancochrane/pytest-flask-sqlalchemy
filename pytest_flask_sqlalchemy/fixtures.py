@@ -214,3 +214,15 @@ def db_engine(_engine, _session, _transaction):
     SQLAlchemy Engine API.
     '''
     return _engine
+
+
+@pytest.fixture(autouse=True)
+def _skip_when_transaction_unavailable(request, _transaction):
+    '''
+    This auto-use fixture allows users of the plugin to decorate test methods
+    with a marker indicating that they should be skipped by pytest when a
+    database transaction cannot be created.
+    '''
+    if request.node.get_closest_marker('skip_when_transaction_unavailable'):
+        if not _transaction:
+            pytest.skip()
