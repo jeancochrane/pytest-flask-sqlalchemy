@@ -36,6 +36,7 @@ def _transaction(request, _db, mocker):
     except sa.exc.DBAPIError as e:
         if request.node.get_closest_marker('requires_sqlalchemy_connection'):
             pytest.skip(msg='Test skipped due to database connect() exception: {e}'.format(e=e))
+            return
         raise
 
     # Start a transaction
