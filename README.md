@@ -394,7 +394,7 @@ without fixtures](#enabling-transactions-without-fixtures).
 
 ### <a name="connectivity-conditional-tests"></a>Connectivity-conditional tests
 
-This plugin provides a [custom marker](https://docs.pytest.org/en/latest/writing_plugins.html#registering-custom-markers) that allows you to selectively skip unit tests if database connectivity cannot be established.
+This plugin provides a [`pytest` custom marker](https://docs.pytest.org/en/latest/writing_plugins.html#registering-custom-markers) that allows you to selectively skip unit tests if database connectivity cannot be established.
 
 To use the marker, you must configure the plugin to catch database connection exceptions:
 
