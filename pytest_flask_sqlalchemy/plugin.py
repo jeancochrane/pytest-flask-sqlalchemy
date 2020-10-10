@@ -1,4 +1,4 @@
-from .fixtures import _db, _transaction, _engine, _session, _skip_when_transaction_unavailable, db_session, db_engine
+from .fixtures import _db, _transaction, _engine, _session, _requires_sqlalchemy_connection, db_session, db_engine
 
 
 def pytest_addoption(parser):
@@ -31,4 +31,4 @@ def pytest_configure(config):
     config._mocked_engines = config.getini('mocked-engines')
     config._mocked_sessions = config.getini('mocked-sessions')
     config._mocked_sessionmakers = config.getini('mocked-sessionmakers')
-    config.addinivalue_line('markers', 'skip_when_transaction_unavailable')
+    config.addinivalue_line('markers', 'requires_sqlalchemy_connection')

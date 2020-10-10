@@ -217,12 +217,12 @@ def db_engine(_engine, _session, _transaction):
 
 
 @pytest.fixture(autouse=True)
-def _skip_when_transaction_unavailable(request, _transaction):
+def _requires_sqlalchemy_connection(request, _transaction):
     '''
     This auto-use fixture allows users of the plugin to decorate test methods
     with a marker indicating that they should be skipped by pytest when a
-    database transaction cannot be created.
+    database connection cannot be established.
     '''
-    if request.node.get_closest_marker('skip_when_transaction_unavailable'):
+    if request.node.get_closest_marker('requires_sqlalchemy_connection'):
         if not _transaction:
             pytest.skip()
