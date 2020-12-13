@@ -73,6 +73,8 @@ def _transaction(request, _db, mocker):
         try:
             session.add(obj)
         except sa.exc.InvalidRequestError:
+            # If the object has been deleted we need to add it back to the session context
+            # See: https://github.com/sqlalchemy/sqlalchemy/blob/da4e4cb1c67230abd67e487cfb1bda8cd6910029/lib/sqlalchemy/orm/session.py#L2343
             sa.orm.session.make_transient(obj)
 
     @request.addfinalizer
