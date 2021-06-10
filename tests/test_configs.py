@@ -105,7 +105,7 @@ def test_missing_db_fixture(testdir):
                 user=pg_user,
                 host=pg_host,
                 port=pg_port,
-                db_name=pg_db,
+                dbname=pg_db,
                 version='9.6',
                 password=pg_pass
             )
