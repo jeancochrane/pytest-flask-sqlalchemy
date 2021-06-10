@@ -75,7 +75,7 @@ def test_missing_db_fixture(testdir):
         import sqlalchemy as sa
         from flask import Flask
         from flask_sqlalchemy import SQLAlchemy
-        from pytest_postgresql.factories import DatabaseJanitor
+        from pytest_postgresql.janitor import DatabaseJanitor 
 
         # Retrieve a database connection string from the shell environment
         try:
