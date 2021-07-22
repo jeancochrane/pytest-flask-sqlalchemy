@@ -102,7 +102,7 @@ def _engine(pytestconfig, request, _transaction, mocker):
     # https://docs.sqlalchemy.org/en/latest/changelog/migration_13.html
     if version.parse(sa.__version__) < version.parse('1.3'):
         engine.contextual_connect.return_value = connection
-    else:
+    elif version.parse(sa.__version__) < version.parse('1.4'):
         engine._contextual_connect.return_value = connection
 
     # References to `Engine.dialect` should redirect to the Connection (this
