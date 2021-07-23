@@ -75,8 +75,7 @@ def test_missing_db_fixture(testdir):
         import sqlalchemy as sa
         from flask import Flask
         from flask_sqlalchemy import SQLAlchemy
-        from pytest_postgresql.factories import (init_postgresql_database,
-                                                drop_postgresql_database)
+        from pytest_postgresql.janitor import DatabaseJanitor
 
         # Retrieve a database connection string from the shell environment
         try:
@@ -102,11 +101,11 @@ def test_missing_db_fixture(testdir):
             pg_pass = DB_OPTS.get("password")
             pg_db = DB_OPTS["database"]
 
-            init_postgresql_database(pg_user, pg_host, pg_port, pg_db, pg_pass)
+            janitor = DatabaseJanitor(pg_user, pg_host, pg_port, pg_db, 9.6, pg_pass)
+            janitor.init()
+            yield
+            janitor.drop()
 
-            @request.addfinalizer
-            def drop_database():
-                drop_postgresql_database(pg_user, pg_host, pg_port, pg_db, 9.6, pg_pass)
 
 
         @pytest.fixture(scope='session')
