@@ -42,9 +42,18 @@ def _transaction(request, _db, mocker):
     connection.force_close = connection.close
     transaction.force_rollback = transaction.rollback
 
+    @contextlib.contextmanager
+    def begin():
+        '''
+        If begin is called on session, swap out for a nested transaction
+        '''
+        with session.begin_nested():
+            yield session
+
     connection.close = lambda: None
     transaction.rollback = lambda: None
     session.close = lambda: None
+    session.begin = begin
 
     # Begin a nested transaction (any new transactions created in the codebase
     # will be held until this outer transaction is committed or closed)
