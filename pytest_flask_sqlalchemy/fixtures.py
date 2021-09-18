@@ -1,5 +1,5 @@
-import os
 import contextlib
+import os
 
 import pytest
 import sqlalchemy as sa
@@ -143,6 +143,12 @@ def _engine(pytestconfig, request, _transaction, mocker):
         return connection.connection
 
     engine.raw_connection = raw_connection
+
+    # Fix SessionTransaction._connection_for_bind caching
+    @sa.event.listens_for(session, 'after_begin')
+    def after_begin(session, transaction, conn):
+        if engine not in transaction._connections:
+            transaction._connections[engine] = transaction._connections[conn]
 
     for mocked_engine in pytestconfig._mocked_engines:
         mocker.patch(mocked_engine, new=engine)
