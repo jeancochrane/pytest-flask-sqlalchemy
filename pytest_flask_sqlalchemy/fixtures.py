@@ -93,6 +93,7 @@ def _engine(pytestconfig, request, _transaction, mocker):
 
     # Make sure that any attempts to call `connect()` simply return a
     # reference to the open connection
+
     engine = mocker.MagicMock(spec=sa.engine.Engine)
 
     engine.connect.return_value = connection
@@ -104,6 +105,12 @@ def _engine(pytestconfig, request, _transaction, mocker):
         engine.contextual_connect.return_value = connection
     elif version.parse(sa.__version__) < version.parse('1.4'):
         engine._contextual_connect.return_value = connection
+
+    # Calls to execution_options should return this mocked engine.
+    engine.execution_options.return_value = engine
+
+    if version.parse(sa.__version__) >= version.parse('1.4'):
+        sa.inspection._registrars[mocker.MagicMock] = sa.engine.Inspector._engine_insp
 
     # References to `Engine.dialect` should redirect to the Connection (this
     # is primarily useful for the `autoload` flag in SQLAlchemy, which references
