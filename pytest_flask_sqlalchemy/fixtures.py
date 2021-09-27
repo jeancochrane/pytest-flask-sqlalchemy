@@ -93,7 +93,6 @@ def _engine(pytestconfig, request, _transaction, mocker):
 
     # Make sure that any attempts to call `connect()` simply return a
     # reference to the open connection
-
     engine = mocker.MagicMock(spec=sa.engine.Engine)
 
     engine.connect.return_value = connection
