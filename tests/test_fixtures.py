@@ -83,7 +83,7 @@ def test_use_db_engine_to_alter_database(db_testdir):
 def test_raise_programmingerror_rolls_back_transaction(db_testdir):
     '''
     Make sure that when a ProgrammingError gets raised and handled, the
-    connection will continue to be useable.
+    connection will continue to be usable.
     '''
     db_testdir.makepyfile("""
         import pytest

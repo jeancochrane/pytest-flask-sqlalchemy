@@ -362,7 +362,7 @@ mocked-sessionmakers=database.WorkerSessionmaker database.SecondWorkerSessionmak
 
 ### <a name="writing-transactional-tests"></a>Writing transactional tests
 
-Once you have your [conftest file set up](#conftest-setup) and you've [overrided the
+Once you have your [conftest file set up](#conftest-setup) and you've [overridden the
 necessary connectables in your test configuration](#test-configuration), you're ready
 to write some transactional tests. Simply import one of the module's [transactional
 fixtures](#fixtures) in your test signature, and the test will be wrapped in a transaction.
