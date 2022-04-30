@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Add support for Python 3.8, 3.9, and 3.10j ([#60](https://github.com/jeancochrane/pytest-flask-sqlalchemy/pull/60))
+- Add support for Python 3.8, 3.9, and 3.10 ([#60](https://github.com/jeancochrane/pytest-flask-sqlalchemy/pull/60))
 - Add support for SQLAlchemy 1.4 ([#51](https://github.com/jeancochrane/pytest-flask-sqlalchemy/pull/51))
 
 ### Removed
