@@ -1,7 +1,5 @@
 # pytest-flask-sqlalchemy
 
-[![Build Status](https://travis-ci.org/jeancochrane/pytest-flask-sqlalchemy.svg?branch=master)](https://travis-ci.org/jeancochrane/pytest-flask-sqlalchemy) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/Django.svg)
-
 A [pytest](https://docs.pytest.org/en/latest/) plugin providing fixtures for running tests in
 transactions using [Flask-SQLAlchemy](http://flask-sqlalchemy.pocoo.org/latest/).
 
