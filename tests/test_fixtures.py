@@ -336,3 +336,32 @@ def test_commit_works_with_deleted_dependent(db_testdir):
 
     result = db_testdir.runpytest()
     result.assert_outcomes(passed=1)
+
+
+def test_rollback_nested(db_testdir):
+    '''
+    Test that creating objects and emitting SQL in the ORM won't bleed into
+    other tests.
+    '''
+    # Load tests from file
+    db_testdir.makepyfile("""
+        def test_rollback_nested(person, db_session, caplog):
+            assert db_session.query(person).count() == 0
+            n1 = db_session.begin_nested()
+            db_session.add(person())
+            assert db_session.query(person).count() == 1
+
+            n2 = db_session.begin_nested()
+            db_session.add(person())
+            assert db_session.query(person).count() == 2
+
+            n2.rollback()
+            print(db_session.bind.mock_calls)
+            assert db_session.query(person).count() == 1
+            n1.rollback()
+            assert db_session.query(person).count() == 0
+    """)
+
+    # Run tests
+    result = db_testdir.runpytest()
+    result.assert_outcomes(passed=1)
