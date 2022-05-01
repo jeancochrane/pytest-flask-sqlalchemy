@@ -103,7 +103,9 @@ def _engine(pytestconfig, request, _transaction, mocker):
     if version.parse(sa.__version__) < version.parse('1.3'):
         engine.contextual_connect.return_value = connection
     elif version.parse(sa.__version__) < version.parse('1.4'):
-        engine._contextual_connect.return_value = connection
+        class Cc:
+            return_value = connection
+        engine._contextual_connect = Cc
 
     # References to `Engine.dialect` should redirect to the Connection (this
     # is primarily useful for the `autoload` flag in SQLAlchemy, which references
