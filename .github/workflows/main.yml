@@ -1,12 +1,6 @@
 name: CI
 
-on:
-  push:
-    branches:
-    - master
-  pull_request:
-    branches:
-    - master
+on: push
 
 jobs:
   test:
@@ -22,28 +16,28 @@ jobs:
         env:
           POSTGRES_PASSWORD: postgres
         ports:
-        - 5432:5432
+          - 5432:5432
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-python@v1
-      with:
-        python-version: ${{ matrix.python }}
-        architecture: x64
-    - name: Install packages and run tests
-      run: |
-        pip install --upgrade pip
-        pip install -e .[tests]
-        pip install --upgrade sqlalchemy=="${SQLALCHEMY_VERSION}"
-        pytest
-      env:
-        TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pytest_test
-        SQLALCHEMY_VERSION: ${{ matrix.sqlalchemy }}
-    
-    - name: Package and Publish
-      if: github.ref == 'refs/heads/main'
-      env:
-        GEMFURY_PUSH_TOKEN: ${{ secrets.GEMFURY_PUSH_TOKEN }}
-        GEMFURY_USER: ${{ secrets.GEMFURY_USER }}
-      run: sh ./scripts/ci/package_and_publish.sh
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python }}
+          architecture: x64
+      - name: Install packages and run tests
+        run: |
+          pip install --upgrade pip
+          pip install -e .[tests]
+          pip install --upgrade sqlalchemy=="${SQLALCHEMY_VERSION}"
+          pytest
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pytest_test
+          SQLALCHEMY_VERSION: ${{ matrix.sqlalchemy }}
+
+      - name: Package and Publish
+        if: github.ref == 'refs/heads/main'
+        env:
+          GEMFURY_PUSH_TOKEN: ${{ secrets.GEMFURY_PUSH_TOKEN }}
+          GEMFURY_USER: ${{ secrets.GEMFURY_USER }}
+        run: sh ./scripts/ci/package_and_publish.sh
