@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: [3.6.x, 3.7.x]
-        sqlalchemy: [1.2.*, 1.3.*, 1.4.*]
+        python: [3.6.x, 3.7.x, 3.8.x, 3.9.x]
+        sqlalchemy: [1.4.*]
     services:
       postgres:
         image: postgres:11
@@ -40,3 +40,10 @@ jobs:
       env:
         TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pytest_test
         SQLALCHEMY_VERSION: ${{ matrix.sqlalchemy }}
+    
+    - name: Package and Publish
+      if: github.ref == 'refs/heads/main'
+      env:
+        GEMFURY_PUSH_TOKEN: ${{ secrets.GEMFURY_PUSH_TOKEN }}
+        GEMFURY_USER: ${{ secrets.GEMFURY_USER }}
+      run: sh ./scripts/ci/package_and_publish.sh
