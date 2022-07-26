@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: [3.8.x, 3.9.x]
+        python: [3.6.x, 3.7.x, 3.8.x, 3.9.x]
         sqlalchemy: [1.4.*]
     services:
       postgres:
@@ -25,15 +25,16 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           architecture: x64
-      - name: Install packages and run tests
-        run: |
-          pip install --upgrade pip
-          pip install -e .[tests]
-          pip install --upgrade sqlalchemy=="${SQLALCHEMY_VERSION}"
-          pytest
-        env:
-          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pytest_test
-          SQLALCHEMY_VERSION: ${{ matrix.sqlalchemy }}
+
+      # - name: Install packages and run tests
+      #   run: |
+      #     pip install --upgrade pip
+      #     pip install -e .[tests]
+      #     pip install --upgrade sqlalchemy=="${SQLALCHEMY_VERSION}"
+      #     pytest
+      #   env:
+      #     TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pytest_test
+      #     SQLALCHEMY_VERSION: ${{ matrix.sqlalchemy }}
 
   package_and_publish:
     name: Package and Publish
