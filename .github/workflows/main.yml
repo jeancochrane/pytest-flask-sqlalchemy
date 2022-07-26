@@ -3,38 +3,40 @@ name: CI
 on: push
 
 jobs:
-  test:
-    name: Test against different Python versions
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python: [3.6.x, 3.7.x, 3.8.x, 3.9.x]
-        sqlalchemy: [1.4.*]
-    services:
-      postgres:
-        image: postgres:11
-        env:
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-        # needed because the postgres container does not provide a healthcheck
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-python@v1
-        with:
-          python-version: ${{ matrix.python }}
-          architecture: x64
-
-      # - name: Install packages and run tests
-      #   run: |
-      #     pip install --upgrade pip
-      #     pip install -e .[tests]
-      #     pip install --upgrade sqlalchemy=="${SQLALCHEMY_VERSION}"
-      #     pytest
-      #   env:
-      #     TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pytest_test
-      #     SQLALCHEMY_VERSION: ${{ matrix.sqlalchemy }}
+#  Removed for now to avoid debugging why these are running differently than in the upstream library.
+#  If major changes to this library are planned we should get these working
+#  test:
+#    name: Test against different Python versions
+#    runs-on: ubuntu-latest
+#    strategy:
+#      matrix:
+#        python: [3.6.x, 3.7.x, 3.8.x, 3.9.x]
+#        sqlalchemy: [1.4.*]
+#    services:
+#      postgres:
+#        image: postgres:11
+#        env:
+#          POSTGRES_PASSWORD: postgres
+#        ports:
+#          - 5432:5432
+#        # needed because the postgres container does not provide a healthcheck
+#        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+#    steps:
+#      - uses: actions/checkout@v1
+#      - uses: actions/setup-python@v1
+#        with:
+#          python-version: ${{ matrix.python }}
+#          architecture: x64
+#
+#      - name: Install packages and run tests
+#        run: |
+#          pip install --upgrade pip
+#          pip install -e .[tests]
+#          pip install --upgrade sqlalchemy=="${SQLALCHEMY_VERSION}"
+#          pytest
+#        env:
+#          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pytest_test
+#          SQLALCHEMY_VERSION: ${{ matrix.sqlalchemy }}
 
   package_and_publish:
     name: Package and Publish
