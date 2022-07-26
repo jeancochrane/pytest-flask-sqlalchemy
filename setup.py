@@ -7,14 +7,14 @@ def readme():
 
 setup(
     name='pytest-flask-sqlalchemy',
-    author='Jean Cochrane',
-    author_email='jean@jeancochrane.com',
-    url='https://github.com/jeancochrane/pytest-flask-sqlalchemy',
+    author='Properly', # with Jean Cochrane as the author of the original package we forked this from
+    author_email='info@properly.ca', # with jean@jeancochrane.com as the contact of the original package
+    url='https://github.com/GoProperly/pytest-flask-sqlalchemy', # originally https://github.com/jeancochrane/pytest-flask-sqlalchemy
     description='A pytest plugin for preserving test isolation in Flask-SQlAlchemy using database transactions.',
     long_description=readme(),
     long_description_content_type='text/markdown',
     license='MIT',
-    version='1.0.2',
+    version='1.1.0.properly',
     packages=['pytest_flask_sqlalchemy'],
     install_requires=['pytest>=3.2.1',
                       'pytest-mock>=1.6.2',
