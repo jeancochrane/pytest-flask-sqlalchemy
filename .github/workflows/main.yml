@@ -40,6 +40,11 @@ jobs:
     name: Package and Publish
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python }}
+          architecture: x64
       - name: Package and Publish
         # if: github.ref == 'refs/heads/main'
         env:
