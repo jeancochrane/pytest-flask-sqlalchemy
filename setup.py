@@ -6,7 +6,7 @@ def readme():
         return f.read()
 
 setup(
-    name='pytest-flask-sqlalchemy',
+    name='properly-pytest-flask-sqlalchemy',
     author='Properly', # with Jean Cochrane as the author of the original package we forked this from
     author_email='info@properly.ca', # with jean@jeancochrane.com as the contact of the original package
     url='https://github.com/GoProperly/pytest-flask-sqlalchemy', # originally https://github.com/jeancochrane/pytest-flask-sqlalchemy
@@ -14,7 +14,7 @@ setup(
     long_description=readme(),
     long_description_content_type='text/markdown',
     license='MIT',
-    version='1.1.0.properly',
+    version='1.2.1',
     packages=['pytest_flask_sqlalchemy'],
     install_requires=['pytest>=3.2.1',
                       'pytest-mock>=1.6.2',
