@@ -35,7 +35,13 @@ def _transaction(request, _db, mocker):
     # when specifying a `bind` option, or else Flask-SQLAlchemy won't scope
     # the connection properly
     options = dict(bind=connection, binds={})
-    session = _db.create_scoped_session(options=options)
+    try:
+        create_scoped_session = _db.create_scoped_session
+    except AttributeError:
+        # For Flask-SQLAlchemy version > 3.0
+        create_scoped_session = _db._make_scoped_session
+
+    session = create_scoped_session(options=options)
 
     # Make sure the session, connection, and transaction can't be closed by accident in
     # the codebase
